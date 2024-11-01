@@ -1,3 +1,5 @@
+package UI;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -10,7 +12,7 @@ public class Login extends JFrame {
 
     public Login() {
         // Set up the frame
-        setTitle("Login");
+        setTitle("UI.Login");
         setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -18,7 +20,7 @@ public class Login extends JFrame {
         // Set up the main panel with BorderLayout
         JPanel mainPanel = new JPanel(new BorderLayout());
 
-        // Top panel for the "Home" button
+        // Top panel for the "UI.Home" button
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton homeButton = new JButton("Home");
         homeButton.addActionListener(new ActionListener() {
@@ -51,8 +53,8 @@ public class Login extends JFrame {
         mainPanel.add(topPanel, BorderLayout.NORTH);
         mainPanel.add(centerPanel, BorderLayout.CENTER);
 
-        // Login button at the bottom
-        JButton loginButton = new JButton("Login");
+        // UI.Login button at the bottom
+        JButton loginButton = new JButton("UI.Login");
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -64,7 +66,7 @@ public class Login extends JFrame {
                 // For demonstration, we'll show a message dialog
                 JOptionPane.showMessageDialog(Login.this,
                         "Logging in as: " + accountType + "\nEmail: " + email,
-                        "Login Attempt", JOptionPane.INFORMATION_MESSAGE);
+                        "UI.Login Attempt", JOptionPane.INFORMATION_MESSAGE);
             }
         });
 

@@ -1,3 +1,5 @@
+package UI;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -14,7 +16,7 @@ public class CreateAccount extends JFrame {
         // Set up the main panel with BorderLayout
         JPanel mainPanel = new JPanel(new BorderLayout());
 
-        // Top panel with "Home" button
+        // Top panel with "UI.Home" button
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton homeButton = new JButton("Home");
         homeButton.addActionListener(new ActionListener() {

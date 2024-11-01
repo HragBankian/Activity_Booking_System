@@ -1,3 +1,5 @@
+package UI;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -22,7 +24,7 @@ public class GuardianAccountCreation extends JFrame {
         // Set up the main panel with BorderLayout
         JPanel mainPanel = new JPanel(new BorderLayout());
 
-        // Top panel with "Back" and "Home" buttons
+        // Top panel with "Back" and "UI.Home" buttons
         JPanel topPanel = new JPanel(new BorderLayout());
 
         // Left panel for "Back" button
@@ -38,7 +40,7 @@ public class GuardianAccountCreation extends JFrame {
         });
         leftPanel.add(backButton);
 
-        // Right panel for "Home" button
+        // Right panel for "UI.Home" button
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton homeButton = new JButton("Home");
         homeButton.addActionListener(new ActionListener() {

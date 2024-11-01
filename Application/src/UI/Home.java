@@ -1,3 +1,5 @@
+package UI;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -27,18 +29,18 @@ public class Home extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 dispose(); // Close the current window
-                CreateAccount createAccountPage = new CreateAccount(); // Open CreateAccount page
+                CreateAccount createAccountPage = new CreateAccount(); // Open UI.CreateAccount page
                 createAccountPage.setVisible(true);
             }
         });
 
-        // "Login" button
-        JButton loginButton = new JButton("Login");
+        // "UI.Login" button
+        JButton loginButton = new JButton("UI.Login");
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 dispose(); // Close the current window
-                Login loginPage = new Login(); // Open Login page
+                Login loginPage = new Login(); // Open UI.Login page
                 loginPage.setVisible(true);
             }
         });
