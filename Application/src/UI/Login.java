@@ -12,7 +12,7 @@ public class Login extends JFrame {
 
     public Login() {
         // Set up the frame
-        setTitle("UI.Login");
+        setTitle("Login");
         setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);

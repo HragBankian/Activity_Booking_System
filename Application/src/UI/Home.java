@@ -35,7 +35,7 @@ public class Home extends JFrame {
         });
 
         // "UI.Login" button
-        JButton loginButton = new JButton("UI.Login");
+        JButton loginButton = new JButton("Login");
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

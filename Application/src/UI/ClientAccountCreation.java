@@ -1,5 +1,8 @@
 package UI;
 
+import DB.Client;
+import DB.DatabaseConnection;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -79,11 +82,26 @@ public class ClientAccountCreation extends JFrame {
         createAccountButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (validateFields()) {
-                    JOptionPane.showMessageDialog(null, "Account created successfully!");
-                    dispose();
-                    Home homePage = new Home();
-                    homePage.setVisible(true);
+                if (validateFields()){
+                    try {
+                        // Create a new Client object
+                        Client newClient = new Client(
+                                nameField.getText(),
+                                emailField.getText(),
+                                new String(passwordField.getPassword()),
+                                phoneField.getText(),
+                                dobField.getText()
+                        );
+
+                        // Insert into database
+                        DatabaseConnection.insertUser(newClient);
+                        JOptionPane.showMessageDialog(null, "Account created successfully!");
+                        dispose();
+                        Home homePage = new Home();
+                        homePage.setVisible(true);
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(null, "Error creating account: " + ex.getMessage());
+                    }
                 }
             }
         });
