@@ -26,7 +26,7 @@ public class ClientAccountCreation extends JFrame {
         // Set up the main panel with BorderLayout
         JPanel mainPanel = new JPanel(new BorderLayout());
 
-        // Top panel with "Back" and "UI.Home" buttons
+        // Top panel with "Back" and "Home" buttons
         JPanel topPanel = new JPanel(new BorderLayout());
         JButton backButton = new JButton("Back");
         backButton.addActionListener(new ActionListener() {
@@ -93,9 +93,13 @@ public class ClientAccountCreation extends JFrame {
                                 dobField.getText()
                         );
 
-                        // Insert into database
-                        DatabaseConnection.insertUser(newClient);
-                        JOptionPane.showMessageDialog(null, "Account created successfully!");
+                        int userId = DatabaseConnection.insertUser(newClient);
+                        if (userId != -1){
+                            JOptionPane.showMessageDialog(null, "Client account created successfully!");
+                        }
+                        else{
+                            JOptionPane.showMessageDialog(null, "Error registering new Client account!");
+                        }
                         dispose();
                         Home homePage = new Home();
                         homePage.setVisible(true);

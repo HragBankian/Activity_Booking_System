@@ -1,5 +1,8 @@
 package UI;
 
+import DB.Guardian;
+import DB.DatabaseConnection;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -24,7 +27,7 @@ public class GuardianAccountCreation extends JFrame {
         // Set up the main panel with BorderLayout
         JPanel mainPanel = new JPanel(new BorderLayout());
 
-        // Top panel with "Back" and "UI.Home" buttons
+        // Top panel with "Back" and "Home" buttons
         JPanel topPanel = new JPanel(new BorderLayout());
 
         // Left panel for "Back" button
@@ -94,10 +97,36 @@ public class GuardianAccountCreation extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (validateFields()) {
-                    JOptionPane.showMessageDialog(null, "Guardian account created successfully!");
-                    dispose();
-                    Home homePage = new Home();
-                    homePage.setVisible(true);
+                    try{
+                        Guardian newGuardian = new Guardian(
+                                nameField.getText(),
+                                emailField.getText(),
+                                new String(passwordField.getPassword()),
+                                phoneField.getText(),
+                                dobField.getText()
+                        );
+
+                        int guardianId = DatabaseConnection.insertUser(newGuardian);
+                        //add minors
+                        if(guardianId != -1){
+                            String[] minors = minorField.getText().split(",");
+                            for (String minorName : minors){
+                                if(!minorName.isEmpty()){
+                                    DatabaseConnection.insertMinor(minorName, guardianId);
+                                }
+                            }
+                            JOptionPane.showMessageDialog(null, "Guardian account created successfully!");
+                        }
+                        else{
+                            JOptionPane.showMessageDialog(null, "Error registering Guardian account!");
+                        }
+
+                        dispose();
+                        Home homePage = new Home();
+                        homePage.setVisible(true);
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(null, "Error creating account: " + ex.getMessage());
+                    }
                 }
             }
         });

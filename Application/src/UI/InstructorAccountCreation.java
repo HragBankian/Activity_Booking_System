@@ -1,5 +1,8 @@
 package UI;
 
+import DB.Instructor;
+import DB.DatabaseConnection;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -121,10 +124,34 @@ public class InstructorAccountCreation extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (validateFields()) {
-                    JOptionPane.showMessageDialog(null, "Instructor account created successfully!");
-                    dispose();
-                    Home homePage = new Home();
-                    homePage.setVisible(true);
+                    try{
+                        Instructor newInstructor = new Instructor(
+                                nameField.getText(),
+                                emailField.getText(),
+                                new String(passwordField.getPassword()),
+                                phoneField.getText(),
+                                dobField.getText()
+                        );
+
+                        int instructorId = DatabaseConnection.insertUser(newInstructor);
+                        //add city fk
+                        if (instructorId != -1){
+                            //add cities
+                            for (String city : selectedCities){
+                                DatabaseConnection.insertCity(city, instructorId);
+                            }
+                            JOptionPane.showMessageDialog(null, "Instructor account created successfully!");
+                            dispose();
+                            Home homePage = new Home();
+                            homePage.setVisible(true);
+                        }
+                        else{
+                            JOptionPane.showMessageDialog(null, "Error registering new Instructor account!");
+                        }
+
+                    } catch (Exception ex){
+                        JOptionPane.showMessageDialog(null, "Error creating account: " + ex.getMessage());
+                    }
                 }
             }
         });

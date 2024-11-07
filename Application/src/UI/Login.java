@@ -53,20 +53,21 @@ public class Login extends JFrame {
         mainPanel.add(topPanel, BorderLayout.NORTH);
         mainPanel.add(centerPanel, BorderLayout.CENTER);
 
-        // UI.Login button at the bottom
-        JButton loginButton = new JButton("UI.Login");
+        // Login button at the bottom
+        JButton loginButton = new JButton("Login");
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Perform login action (you can implement your logic here)
                 String accountType = (String) accountTypeComboBox.getSelectedItem();
                 String email = emailField.getText();
                 String password = new String(passwordField.getPassword());
 
-                // For demonstration, we'll show a message dialog
-                JOptionPane.showMessageDialog(Login.this,
-                        "Logging in as: " + accountType + "\nEmail: " + email,
-                        "UI.Login Attempt", JOptionPane.INFORMATION_MESSAGE);
+                if (DB.DatabaseConnection.validateLogin(accountType, email, password)) {
+                    JOptionPane.showMessageDialog(Login.this, "Login successful!", "Login", JOptionPane.INFORMATION_MESSAGE);
+                    // Redirect to main page
+                } else {
+                    JOptionPane.showMessageDialog(Login.this, "Invalid credentials. Please try again.", "Login", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
 
