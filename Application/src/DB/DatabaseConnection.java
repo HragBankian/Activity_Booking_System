@@ -5,6 +5,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.ResultSet;
+import java.sql.*;
+import java.util.ArrayList;
 
 
 public class DatabaseConnection {
@@ -93,8 +95,6 @@ public class DatabaseConnection {
         return -1;
     }
 
-
-
     public static void insertMinor(String minorName, int guardianId) {
         String sql = "INSERT INTO \"Minor\" (full_name, guardian_id) VALUES (?, ?)";
         try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -139,6 +139,92 @@ public class DatabaseConnection {
         }
         return false;
     }
+
+    // Create Offering
+    public static boolean createOffering(Offering offering) {
+        String query = "INSERT INTO \"Offering\" (title, organization, city, time, capacity, num_students, instructor_id) VALUES (?::specialty_enum, ?, ?::city_enum, ?, ?, ?, ?)";
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, offering.getTitle());
+            pstmt.setString(2, offering.getOrganization());
+            pstmt.setString(3, offering.getCity());
+            pstmt.setString(4, offering.getTime());
+            pstmt.setInt(5, offering.getCapacity());
+            pstmt.setInt(6, offering.getNumStudents());
+            pstmt.setObject(7, offering.getInstructorId(), Types.INTEGER);  // Handle null values
+
+            pstmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Read Offerings
+    public static ArrayList<Offering> getOfferings() {
+        ArrayList<Offering> offerings = new ArrayList<>();
+        String query = "SELECT * FROM \"Offering\"";
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query); ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String title = rs.getString("title");
+                String organization = rs.getString("organization");
+                String city = rs.getString("city");
+                String time = rs.getString("time");
+                int capacity = rs.getInt("capacity");
+                Integer instructorId = (Integer) rs.getObject("instructor_id");
+
+                Offering offering = new Offering(title, organization, city, time, capacity);
+                offering.setInstructorId(instructorId);
+                offerings.add(offering);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return offerings;
+    }
+
+    // Update Offering
+    public static boolean updateOffering(int offeringId, Offering offering) {
+        String query = "UPDATE \"Offering\" SET title = ?, organization = ?, city = ?::city_enum, time = ?, capacity = ?, instructor_id = ? WHERE id = ?";
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, offering.getTitle());
+            pstmt.setString(2, offering.getOrganization());
+            pstmt.setString(3, offering.getCity()); // Set city using the enum directly
+            pstmt.setString(4, offering.getTime());
+            pstmt.setInt(5, offering.getCapacity());
+
+            // Handle instructor_id as Integer, including possible null value
+            if (offering.getInstructorId() != null) {
+                pstmt.setInt(6, offering.getInstructorId());
+            } else {
+                pstmt.setNull(6, Types.INTEGER);  // Set null for instructor_id if it's null
+            }
+
+            pstmt.setInt(7, offeringId); // Set offering ID for where clause
+
+            pstmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Delete Offering
+    public static boolean deleteOffering(int offeringId) {
+        String query = "DELETE FROM \"Offering\" WHERE id = ?";
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, offeringId); // Set offering ID for deletion
+
+            pstmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 
     public static void main(String[] args) {
         connect();
