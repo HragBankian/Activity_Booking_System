@@ -34,33 +34,66 @@ public class DatabaseConnection {
     }
 
     public static int insertUser(User user) {
-        String sql = String.format(
-                "INSERT INTO \"%s\" (full_name, email, password, phone_number, date_of_birth) VALUES (?, ?, ?, ?, ?) RETURNING id",
-                user.getUserType() // Directly using the table name from getUserType()
-        );
+        String sql;
 
-        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, user.getFullName());
-            pstmt.setString(2, user.getEmail());
-            pstmt.setString(3, user.getPassword());
-            pstmt.setString(4, user.getPhoneNumber());
-            pstmt.setString(5, user.getDateOfBirth());
+        // Check if the user is an Instructor
+        if (user instanceof Instructor) {
+            Instructor instructor = (Instructor) user;
 
-            //pstmt.executeUpdate();
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()){
-                int userId = rs.getInt("id");
-                System.out.println(user.getUserType() + " added to database with ID: " + userId);
-                return userId;
+            // Modify the SQL query to include the 'specialty' column for instructors and cast the specialty to the enum type
+            sql = "INSERT INTO \"Instructor\" (full_name, email, password, phone_number, date_of_birth, specialty) " +
+                    "VALUES (?, ?, ?, ?, ?, ?::specialty_enum) RETURNING id";
+
+            try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, user.getFullName());
+                pstmt.setString(2, user.getEmail());
+                pstmt.setString(3, user.getPassword());
+                pstmt.setString(4, user.getPhoneNumber());
+                pstmt.setString(5, user.getDateOfBirth());
+                pstmt.setString(6, instructor.getSpecialty());  // Set the specialty for the instructor
+
+                ResultSet rs = pstmt.executeQuery();
+                if (rs.next()) {
+                    int userId = rs.getInt("id");
+                    System.out.println(user.getUserType() + " added to database with ID: " + userId);
+                    return userId;
+                }
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+                System.out.println("Error adding " + user.getUserType() + " to database.");
             }
+        } else {
+            // For other user types, keep the original query (without specialty)
+            sql = String.format(
+                    "INSERT INTO \"%s\" (full_name, email, password, phone_number, date_of_birth) VALUES (?, ?, ?, ?, ?) RETURNING id",
+                    user.getUserType() // Directly using the table name from getUserType()
+            );
 
+            try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, user.getFullName());
+                pstmt.setString(2, user.getEmail());
+                pstmt.setString(3, user.getPassword());
+                pstmt.setString(4, user.getPhoneNumber());
+                pstmt.setString(5, user.getDateOfBirth());
 
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println("Error adding " + user.getUserType() + " to database.");
+                ResultSet rs = pstmt.executeQuery();
+                if (rs.next()) {
+                    int userId = rs.getInt("id");
+                    System.out.println(user.getUserType() + " added to database with ID: " + userId);
+                    return userId;
+                }
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+                System.out.println("Error adding " + user.getUserType() + " to database.");
+            }
         }
+
         return -1;
     }
+
+
 
     public static void insertMinor(String minorName, int guardianId) {
         String sql = "INSERT INTO \"Minor\" (full_name, guardian_id) VALUES (?, ?)";
