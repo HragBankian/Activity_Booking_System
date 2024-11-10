@@ -25,7 +25,7 @@ public class AdminHome extends JFrame {
         btnOfferingsCRUD.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //new OfferingsCRUD().setVisible(true); // Open Offerings CRUD window
+                new OfferingsCRUD().setVisible(true); // Open Offerings CRUD window
             }
         });
 
