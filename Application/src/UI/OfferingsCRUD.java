@@ -24,7 +24,7 @@ public class OfferingsCRUD extends JFrame {
         setLayout(new BorderLayout());
 
         // Initialize components
-        tableModel = new DefaultTableModel(new Object[]{"ID", "Title", "Organization", "City", "Time", "Capacity", "Instructor ID"}, 0);
+        tableModel = new DefaultTableModel(new Object[]{"ID", "Title", "Organization", "City", "Time", "Capacity", "Num Students", "Instructor ID"}, 0);
         offeringsTable = new JTable(tableModel);
 
         createButton = new JButton("Create Offering");
@@ -117,9 +117,10 @@ public class OfferingsCRUD extends JFrame {
             String city = offering.getCity();
             String time = offering.getTime();
             int capacity = offering.getCapacity();
+            int numStudents = offering.getNumStudents();
             Integer instructorId = offering.getInstructorId();
 
-            tableModel.addRow(new Object[]{id, title, organization, city, time, capacity, instructorId});
+            tableModel.addRow(new Object[]{id, title, organization, city, time, capacity, numStudents, instructorId});
         }
     }
 
@@ -164,12 +165,8 @@ public class OfferingsCRUD extends JFrame {
             String time = (String) tableModel.getValueAt(selectedRow, 4);
             Object capvalue = tableModel.getValueAt(selectedRow, 5);
             int capacity = (capvalue instanceof Integer) ? (Integer) capvalue : Integer.parseInt((String) capvalue);
-            //String capacitys = ((String) tableModel.getValueAt(selectedRow, 5));
-            //int capacity = Integer.parseInt(capacitys);
-            //Integer instructorId = instructorIdField.getText().isEmpty() ? null : (int) tableModel.getValueAt(selectedRow, 6);
             System.out.println(capacity);
             Offering updatedOffering = new Offering(offeringId, title, organization, city, time, capacity);
-            //updatedOffering.setInstructorId(instructorId);
 
             boolean success = DatabaseConnection.updateOffering(offeringId, updatedOffering);
             if (success) {

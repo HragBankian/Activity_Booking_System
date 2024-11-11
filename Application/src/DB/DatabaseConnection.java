@@ -172,9 +172,11 @@ public class DatabaseConnection {
                 String city = rs.getString("city");
                 String time = rs.getString("time");
                 int capacity = rs.getInt("capacity");
+                int numStudents = rs.getInt("num_students");
                 Integer instructorId = (Integer) rs.getObject("instructor_id");
 
                 Offering offering = new Offering(id, title, organization, city, time, capacity);
+                offering.setNumStudents(numStudents);
                 offering.setInstructorId(instructorId);
                 offerings.add(offering);
             }
