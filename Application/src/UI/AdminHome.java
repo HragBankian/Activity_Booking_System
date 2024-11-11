@@ -53,7 +53,7 @@ public class AdminHome extends JFrame {
         btnInstructorsCRUD.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //new InstructorsCRUD().setVisible(true); // Open Instructors CRUD window
+                new InstructorsCRUD().setVisible(true); // Open Instructors CRUD window
             }
         });
 
