@@ -19,7 +19,7 @@ public class OfferingsCRUD extends JFrame {
     public OfferingsCRUD() {
         setTitle("Offerings CRUD");
         setSize(800, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
