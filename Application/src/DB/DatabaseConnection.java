@@ -613,6 +613,119 @@ public class DatabaseConnection {
         return false;
     }
 
+    public static boolean assignInstructorToOffering(int offeringId, int instructorId) {
+        String query = "UPDATE \"Offering\" SET instructor_id = ? WHERE id = ?";
+
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, instructorId);
+            pstmt.setInt(2, offeringId);
+            int rowsUpdated = pstmt.executeUpdate();
+            return rowsUpdated > 0;  // Return true if the offering was updated
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static ArrayList<String> getInstructorCities(int instructorId) {
+        ArrayList<String> cities = new ArrayList<>();
+        String query = "SELECT name FROM \"City\" WHERE instructor_id = ?";
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, instructorId);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                cities.add(rs.getString("name"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return cities;
+    }
+
+    public static String getInstructorSpecialty(int instructorId) {
+        String specialty = null;
+        String query = "SELECT specialty FROM \"Instructor\" WHERE id = ?";
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, instructorId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                specialty = rs.getString("specialty");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return specialty;
+    }
+
+    public static ArrayList<Object[]> getAvailableOfferings(int instructorId) {
+        ArrayList<Object[]> offerings = new ArrayList<>();
+
+        ArrayList<String> instructorCities = getInstructorCities(instructorId);
+        String instructorSpecialty = getInstructorSpecialty(instructorId);
+
+        String query = "SELECT * FROM \"Offering\" WHERE instructor_id IS NULL AND city = ANY (?) AND title = ?::specialty_enum";
+
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            Array citiesArray = conn.createArrayOf("city_enum", instructorCities.toArray());
+            pstmt.setArray(1, citiesArray);
+            pstmt.setString(2, instructorSpecialty);
+
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                // Create an Offering object and add to the list
+                int id = rs.getInt("id");
+                String title = rs.getString("title");
+                String organization = rs.getString("organization");
+                String city = rs.getString("city");
+                String time = rs.getString("time");
+                int capacity = rs.getInt("capacity");
+                offerings.add(new Object[]{id, title, organization, city, time, capacity});
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return offerings;
+    }
+
+    public static ArrayList<Object[]> getInstructorLessons(int instructorId) {
+        ArrayList<Object[]> lessons = new ArrayList<>();
+        String query = "SELECT * FROM \"Offering\" WHERE instructor_id = ?";
+
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, instructorId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    lessons.add(new Object[] {
+                            rs.getInt("id"),
+                            rs.getString("title"),
+                            rs.getString("organization"),
+                            rs.getString("city"),
+                            rs.getString("time"),
+                            rs.getInt("capacity")
+                    });
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lessons;
+    }
+
+    public static boolean cancelLesson(int offeringId) {
+        String query = "UPDATE \"Offering\" SET instructor_id = NULL WHERE id = ?";
+
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, offeringId);
+            int rowsUpdated = pstmt.executeUpdate();
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public static void main(String[] args) {
         connect();
     }

@@ -18,7 +18,7 @@ public class InstructorHome extends JFrame {
         setTitle("Instructor Home");
         setSize(400, 300);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new GridLayout(3, 1, 10, 10));
 
         welcomeLabel = new JLabel("Welcome " + name);
@@ -31,14 +31,14 @@ public class InstructorHome extends JFrame {
         btnSelectOffering.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //new SelectOffering(instructorId).setVisible(true);
+                new SelectOffering(instructorId).setVisible(true);
             }
         });
 
         btnManageLessons.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //new ManageLessons().setVisible(true);
+                new ManageLessons(instructorId).setVisible(true);
             }
         });
 

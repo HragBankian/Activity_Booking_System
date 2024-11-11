@@ -53,7 +53,6 @@ public class Login extends JFrame {
         mainPanel.add(topPanel, BorderLayout.NORTH);
         mainPanel.add(centerPanel, BorderLayout.CENTER);
 
-        // Login button at the bottom
         JButton loginButton = new JButton("Login");
         loginButton.addActionListener(new ActionListener() {
             @Override
@@ -77,7 +76,7 @@ public class Login extends JFrame {
                             //nextPage = new GuardianHome();
                             break;
                         case "Instructor":
-                            //nextPage = new InstructorHome();
+                            nextPage = new InstructorHome(id);
                             break;
                         default:
                             nextPage = new Home();
