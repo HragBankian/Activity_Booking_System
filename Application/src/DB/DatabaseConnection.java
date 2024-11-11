@@ -370,27 +370,34 @@ public class DatabaseConnection {
     public static boolean deleteInstructor(int instructorId) {
         // Query to get all offerings by the instructor
         String getOfferingsQuery = "SELECT id FROM \"Offering\" WHERE instructor_id = ?";
-        // Query to delete bookings associated with these offerings
-        String deleteBookingsQuery = "DELETE FROM \"ClientBooking\" WHERE offering_id = ?";
+        // Query to delete bookings associated with these offerings in ClientBooking
+        String deleteClientBookingsQuery = "DELETE FROM \"ClientBooking\" WHERE offering_id = ?";
+        // Query to delete bookings associated with these offerings in MinorBooking
+        String deleteMinorBookingsQuery = "DELETE FROM \"MinorBooking\" WHERE offering_id = ?";
         // Query to delete the instructor
         String deleteInstructorQuery = "DELETE FROM \"Instructor\" WHERE id = ?";
 
         try (Connection conn = connect();
              PreparedStatement getOfferingsStmt = conn.prepareStatement(getOfferingsQuery);
-             PreparedStatement deleteBookingsStmt = conn.prepareStatement(deleteBookingsQuery);
+             PreparedStatement deleteClientBookingsStmt = conn.prepareStatement(deleteClientBookingsQuery);
+             PreparedStatement deleteMinorBookingsStmt = conn.prepareStatement(deleteMinorBookingsQuery);
              PreparedStatement deleteInstructorStmt = conn.prepareStatement(deleteInstructorQuery)) {
 
             // Step 1: Get all offerings associated with the instructor
             getOfferingsStmt.setInt(1, instructorId);
             ResultSet rs = getOfferingsStmt.executeQuery();
 
-            // Step 2: For each offering, delete the associated bookings
+            // Step 2: For each offering, delete the associated bookings in both ClientBooking and MinorBooking
             while (rs.next()) {
                 int offeringId = rs.getInt("id");
 
-                // Delete all bookings for this offering
-                deleteBookingsStmt.setInt(1, offeringId);
-                deleteBookingsStmt.executeUpdate();
+                // Delete all bookings for this offering in ClientBooking
+                deleteClientBookingsStmt.setInt(1, offeringId);
+                deleteClientBookingsStmt.executeUpdate();
+
+                // Delete all bookings for this offering in MinorBooking
+                deleteMinorBookingsStmt.setInt(1, offeringId);
+                deleteMinorBookingsStmt.executeUpdate();
             }
 
             // Step 3: Finally, delete the instructor
@@ -404,6 +411,7 @@ public class DatabaseConnection {
             return false;
         }
     }
+
 
     public static ArrayList<ClientBooking> getClientBookings() {
         ArrayList<ClientBooking> clientBookings = new ArrayList<>();
@@ -714,17 +722,40 @@ public class DatabaseConnection {
     }
 
     public static boolean cancelLesson(int offeringId) {
-        String query = "UPDATE \"Offering\" SET instructor_id = NULL WHERE id = ?";
+        // Query to set instructor_id to NULL for the offering
+        String cancelLessonQuery = "UPDATE \"Offering\" SET instructor_id = NULL WHERE id = ?";
+        // Query to delete bookings associated with this offering from ClientBooking table
+        String deleteClientBookingsQuery = "DELETE FROM \"ClientBooking\" WHERE offering_id = ?";
+        // Query to delete bookings associated with this offering from MinorBooking table
+        String deleteMinorBookingsQuery = "DELETE FROM \"MinorBooking\" WHERE offering_id = ?";
 
-        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setInt(1, offeringId);
-            int rowsUpdated = pstmt.executeUpdate();
-            return rowsUpdated > 0;
+        try (Connection conn = connect();
+             PreparedStatement cancelLessonStmt = conn.prepareStatement(cancelLessonQuery);
+             PreparedStatement deleteClientBookingsStmt = conn.prepareStatement(deleteClientBookingsQuery);
+             PreparedStatement deleteMinorBookingsStmt = conn.prepareStatement(deleteMinorBookingsQuery)) {
+
+            // Step 1: Set instructor_id to NULL, indicating the lesson is canceled
+            cancelLessonStmt.setInt(1, offeringId);
+            int rowsUpdated = cancelLessonStmt.executeUpdate();
+
+            if (rowsUpdated > 0) {
+                // Step 2: Delete all bookings associated with this offering in ClientBooking
+                deleteClientBookingsStmt.setInt(1, offeringId);
+                deleteClientBookingsStmt.executeUpdate();
+
+                // Step 3: Delete all bookings associated with this offering in MinorBooking
+                deleteMinorBookingsStmt.setInt(1, offeringId);
+                deleteMinorBookingsStmt.executeUpdate();
+
+                return true;
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
     }
+
 
     public static void main(String[] args) {
         connect();
