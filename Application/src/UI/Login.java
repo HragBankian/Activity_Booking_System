@@ -62,9 +62,31 @@ public class Login extends JFrame {
                 String email = emailField.getText();
                 String password = new String(passwordField.getPassword());
 
-                if (DB.DatabaseConnection.validateLogin(accountType, email, password)) {
+                int id = DB.DatabaseConnection.validateLogin(accountType, email, password);
+                if (id != -1) {
                     JOptionPane.showMessageDialog(Login.this, "Login successful!", "Login", JOptionPane.INFORMATION_MESSAGE);
-                    // Redirect to main page
+                    JFrame nextPage = null;
+                    switch (accountType){
+                        case "Admin":
+                            nextPage = new AdminHome();
+                            break;
+                        case "Client":
+                            nextPage = new ClientHome(id);
+                            break;
+                        case "Guardian":
+                            //nextPage = new GuardianHome();
+                            break;
+                        case "Instructor":
+                            //nextPage = new InstructorHome();
+                            break;
+                        default:
+                            nextPage = new Home();
+                    }
+                    if (nextPage != null) {
+                        nextPage.setVisible(true);
+                        Login.this.dispose();
+                    }
+
                 } else {
                     JOptionPane.showMessageDialog(Login.this, "Invalid credentials. Please try again.", "Login", JOptionPane.ERROR_MESSAGE);
                 }

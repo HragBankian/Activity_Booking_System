@@ -122,9 +122,9 @@ public class DatabaseConnection {
         }
     }
 
-    public static boolean validateLogin(String userType, String email, String password) {
+    public static int validateLogin(String userType, String email, String password) {
         String tableName = userType;
-        String query = String.format("SELECT password FROM \"%s\" WHERE email = ?", tableName);
+        String query = String.format("SELECT id, password FROM \"%s\" WHERE email = ?", tableName);
 
         try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, email);
@@ -132,12 +132,29 @@ public class DatabaseConnection {
 
             if (rs.next()) {
                 String storedPassword = rs.getString("password");
-                return storedPassword.equals(password); // Temporary direct comparison; replace with bcrypt hashing if needed
+                if (storedPassword.equals(password)){
+                    return rs.getInt("id");
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return false;
+        return -1;
+    }
+
+    public static String getUserNameById(int id, String userType) {
+        String tableName = userType;
+        String query = String.format("SELECT full_name FROM \"%s\" WHERE id = ?", tableName);
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, id);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getString("full_name");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "User"; // Fallback name if query fails
     }
 
     // Create Offering
