@@ -229,6 +229,45 @@ public class DatabaseConnection {
         }
     }
 
+    public static ArrayList<Client> getClients() {
+        ArrayList<Client> clients = new ArrayList<>();
+        String query = "SELECT * FROM \"Client\"";
+
+        try (Connection conn = connect();
+             PreparedStatement pstmt = conn.prepareStatement(query);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String fullName = rs.getString("full_name");
+                String email = rs.getString("email");
+                String phoneNumber = rs.getString("phone_number");
+                String dateOfBirth = rs.getString("date_of_birth");
+
+                // Create Client object
+                Client client = new Client(fullName, email, null, phoneNumber, dateOfBirth);
+                client.setId(id);
+                clients.add(client);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return clients;
+    }
+
+    public static boolean deleteClient(int clientId) {
+        String query = "DELETE FROM \"Client\" WHERE id = ?";
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, clientId); // Set client ID for deletion
+
+            pstmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     public static void main(String[] args) {
         connect();

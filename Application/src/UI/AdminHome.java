@@ -39,7 +39,7 @@ public class AdminHome extends JFrame {
         btnClientsCRUD.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //new ClientsCRUD().setVisible(true); // Open Clients CRUD window
+                new ClientsCRUD().setVisible(true); // Open Clients CRUD window
             }
         });
 
