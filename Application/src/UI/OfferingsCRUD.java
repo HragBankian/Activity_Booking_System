@@ -132,7 +132,7 @@ public class OfferingsCRUD extends JFrame {
             int capacity = Integer.parseInt(capacityField.getText()); // Handle potential parsing error
             Integer instructorId = instructorIdField.getText().isEmpty() ? null : Integer.parseInt(instructorIdField.getText());
 
-            Offering newOffering = new Offering(title, organization, city, time, capacity);
+            Offering newOffering = new Offering(0, title, organization, city, time, capacity);
             newOffering.setInstructorId(instructorId);
 
             boolean success = DatabaseConnection.createOffering(newOffering);
@@ -153,18 +153,23 @@ public class OfferingsCRUD extends JFrame {
             JOptionPane.showMessageDialog(this, "Please select an offering to update.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
         try {
             int offeringId = (int) tableModel.getValueAt(selectedRow, 0);
-            String title = titleField.getText();
-            String organization = organizationField.getText();
-            String city = cityField.getText();
-            String time = timeField.getText();
-            int capacity = Integer.parseInt(capacityField.getText());
-            Integer instructorId = instructorIdField.getText().isEmpty() ? null : Integer.parseInt(instructorIdField.getText());
-
-            Offering updatedOffering = new Offering(title, organization, city, time, capacity);
-            updatedOffering.setInstructorId(instructorId);
+            if (offeringsTable.isEditing()){
+                offeringsTable.getCellEditor().stopCellEditing();
+            }
+            String title = (String) tableModel.getValueAt(selectedRow, 1);
+            String organization = (String) tableModel.getValueAt(selectedRow, 2);
+            String city = (String) tableModel.getValueAt(selectedRow, 3);
+            String time = (String) tableModel.getValueAt(selectedRow, 4);
+            Object capvalue = tableModel.getValueAt(selectedRow, 5);
+            int capacity = (capvalue instanceof Integer) ? (Integer) capvalue : Integer.parseInt((String) capvalue);
+            //String capacitys = ((String) tableModel.getValueAt(selectedRow, 5));
+            //int capacity = Integer.parseInt(capacitys);
+            //Integer instructorId = instructorIdField.getText().isEmpty() ? null : (int) tableModel.getValueAt(selectedRow, 6);
+            System.out.println(capacity);
+            Offering updatedOffering = new Offering(offeringId, title, organization, city, time, capacity);
+            //updatedOffering.setInstructorId(instructorId);
 
             boolean success = DatabaseConnection.updateOffering(offeringId, updatedOffering);
             if (success) {

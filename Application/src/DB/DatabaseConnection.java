@@ -174,7 +174,7 @@ public class DatabaseConnection {
                 int capacity = rs.getInt("capacity");
                 Integer instructorId = (Integer) rs.getObject("instructor_id");
 
-                Offering offering = new Offering(title, organization, city, time, capacity);
+                Offering offering = new Offering(id, title, organization, city, time, capacity);
                 offering.setInstructorId(instructorId);
                 offerings.add(offering);
             }
@@ -186,7 +186,7 @@ public class DatabaseConnection {
 
     // Update Offering
     public static boolean updateOffering(int offeringId, Offering offering) {
-        String query = "UPDATE \"Offering\" SET title = ?, organization = ?, city = ?::city_enum, time = ?, capacity = ?, instructor_id = ? WHERE id = ?";
+        String query = "UPDATE \"Offering\" SET title = ?::specialty_enum, organization = ?, city = ?::city_enum, time = ?, capacity = ?, instructor_id = ? WHERE id = ?";
         try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, offering.getTitle());
             pstmt.setString(2, offering.getOrganization());
@@ -204,6 +204,8 @@ public class DatabaseConnection {
             pstmt.setInt(7, offeringId); // Set offering ID for where clause
 
             pstmt.executeUpdate();
+            int test = offering.getCapacity();
+            System.out.println(test);
             return true;
         } catch (SQLException e) {
             e.printStackTrace();

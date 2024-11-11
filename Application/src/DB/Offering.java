@@ -11,7 +11,8 @@ public class Offering {
     private Integer instructorId; // Using Integer because instructorId can be null
 
     // Constructor
-    public Offering(String title, String organization, String city, String time, int capacity) {
+    public Offering(int id, String title, String organization, String city, String time, int capacity) {
+        this.id = id;
         this.title = title;
         this.organization = organization;
         this.city = city;
