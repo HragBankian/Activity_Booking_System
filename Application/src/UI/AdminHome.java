@@ -18,7 +18,7 @@ public class AdminHome extends JFrame {
         JButton btnOfferingsCRUD = new JButton("Offerings");
         JButton btnBookingsCRUD = new JButton("Bookings");
         JButton btnClientsCRUD = new JButton("Clients");
-        JButton btnGuardiansCRUD = new JButton("Guardians");
+        JButton btnGuardiansCRUD = new JButton("Guardians/Minors");
         JButton btnInstructorsCRUD = new JButton("Instructors");
 
         // Add action listeners for buttons
@@ -46,7 +46,7 @@ public class AdminHome extends JFrame {
         btnGuardiansCRUD.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //new GuardiansCRUD().setVisible(true); // Open Guardians CRUD window
+                //new GuardiansMinorsCRUD().setVisible(true); // Open Guardians CRUD window
             }
         });
 

@@ -272,4 +272,68 @@ public class DatabaseConnection {
     public static void main(String[] args) {
         connect();
     }
+
+    public static ArrayList<Guardian> getGuardians() {
+        ArrayList<Guardian> guardians = new ArrayList<>();
+        String query = "SELECT * FROM \"Guardian\"";
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query); ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String fullName = rs.getString("full_name");
+                String email = rs.getString("email");
+                String phoneNumber = rs.getString("phone_number");
+                String dateOfBirth = rs.getString("date_of_birth");
+
+                Guardian guardian = new Guardian(fullName, email, "", phoneNumber, dateOfBirth);
+                guardian.setId(id); // Assuming setId is implemented in the User or Guardian class
+                guardians.add(guardian);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return guardians;
+    }
+
+    public static ArrayList<Minor> getMinors() {
+        ArrayList<Minor> minors = new ArrayList<>();
+        String query = "SELECT id, full_name, guardian_id FROM \"Minor\"";
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query); ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String fullName = rs.getString("full_name");
+                int guardianId = rs.getInt("guardian_id");
+                Minor minor = new Minor(id, fullName, guardianId);
+                minors.add(minor);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return minors;
+    }
+
+
+    public static boolean deleteGuardian(int guardianId) {
+        String query = "DELETE FROM \"Guardian\" WHERE id = ?";
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, guardianId);
+            pstmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean deleteMinor(int minorId) {
+        String query = "DELETE FROM \"Minor\" WHERE id = ?";
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, minorId); // Set minor ID for deletion
+            pstmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }
