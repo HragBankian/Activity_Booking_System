@@ -46,7 +46,7 @@ public class AdminHome extends JFrame {
         btnGuardiansCRUD.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //new GuardiansMinorsCRUD().setVisible(true); // Open Guardians CRUD window
+                new GuardiansMinorsCRUD().setVisible(true); // Open Guardians CRUD window
             }
         });
 

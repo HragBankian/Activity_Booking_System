@@ -269,10 +269,6 @@ public class DatabaseConnection {
         }
     }
 
-    public static void main(String[] args) {
-        connect();
-    }
-
     public static ArrayList<Guardian> getGuardians() {
         ArrayList<Guardian> guardians = new ArrayList<>();
         String query = "SELECT * FROM \"Guardian\"";
@@ -311,7 +307,6 @@ public class DatabaseConnection {
         return minors;
     }
 
-
     public static boolean deleteGuardian(int guardianId) {
         String query = "DELETE FROM \"Guardian\" WHERE id = ?";
         try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -334,6 +329,45 @@ public class DatabaseConnection {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public static ArrayList<Instructor> getInstructors() {
+        ArrayList<Instructor> instructors = new ArrayList<>();
+        String query = "SELECT id, full_name, email, phone_number, date_of_birth, specialty FROM \"Instructor\"";
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query); ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String fullName = rs.getString("full_name");
+                String email = rs.getString("email");
+                String phoneNumber = rs.getString("phone_number");
+                String dateOfBirth = rs.getString("date_of_birth");
+                String specialty = rs.getString("specialty");
+
+                // Create an Instructor object and add it to the list
+                Instructor instructor = new Instructor(fullName, email, "", phoneNumber, dateOfBirth, specialty);
+                instructor.setId(id);  // Set the ID for the instructor
+                instructors.add(instructor);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return instructors;
+    }
+
+    public static boolean deleteInstructor(int instructorId) {
+        String query = "DELETE FROM \"Instructor\" WHERE id = ?";
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, instructorId);  // Set instructor ID for deletion
+            pstmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static void main(String[] args) {
+        connect();
     }
 
 }

@@ -117,6 +117,7 @@ public class GuardiansMinorsCRUD extends JFrame {
         if (success) {
             JOptionPane.showMessageDialog(this, "Guardian deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             loadGuardians(); // Refresh the guardians table
+            loadMinors(); // Refresh the minors table
         } else {
             JOptionPane.showMessageDialog(this, "Error deleting guardian.", "Error", JOptionPane.ERROR_MESSAGE);
         }
