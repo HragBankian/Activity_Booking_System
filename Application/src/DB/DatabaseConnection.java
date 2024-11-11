@@ -157,7 +157,6 @@ public class DatabaseConnection {
         return "User"; // Fallback name if query fails
     }
 
-    // Create Offering
     public static boolean createOffering(Offering offering) {
         String query = "INSERT INTO \"Offering\" (title, organization, city, time, capacity, num_students, instructor_id) VALUES (?::specialty_enum, ?, ?::city_enum, ?, ?, ?, ?)";
         try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -177,7 +176,6 @@ public class DatabaseConnection {
         }
     }
 
-    // Read Offerings
     public static ArrayList<Offering> getOfferings() {
         ArrayList<Offering> offerings = new ArrayList<>();
         String query = "SELECT * FROM \"Offering\"";
@@ -203,7 +201,6 @@ public class DatabaseConnection {
         return offerings;
     }
 
-    // Update Offering
     public static boolean updateOffering(int offeringId, Offering offering) {
         String query = "UPDATE \"Offering\" SET title = ?::specialty_enum, organization = ?, city = ?::city_enum, time = ?, capacity = ?, instructor_id = ? WHERE id = ?";
         try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -232,7 +229,6 @@ public class DatabaseConnection {
         }
     }
 
-    // Delete Offering
     public static boolean deleteOffering(int offeringId) {
         String query = "DELETE FROM \"Offering\" WHERE id = ?";
         try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -375,6 +371,66 @@ public class DatabaseConnection {
         String query = "DELETE FROM \"Instructor\" WHERE id = ?";
         try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setInt(1, instructorId);  // Set instructor ID for deletion
+            pstmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static ArrayList<ClientBooking> getClientBookings() {
+        ArrayList<ClientBooking> clientBookings = new ArrayList<>();
+        String query = "SELECT id, offering_id, client_id FROM \"ClientBooking\"";
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query); ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                int offeringId = rs.getInt("offering_id");
+                int clientId = rs.getInt("client_id");
+                clientBookings.add(new ClientBooking(offeringId, clientId) {{
+                    setId(id); // Set the generated ID
+                }});
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return clientBookings;
+    }
+
+    public static ArrayList<MinorBooking> getMinorBookings() {
+        ArrayList<MinorBooking> minorBookings = new ArrayList<>();
+        String query = "SELECT id, offering_id, minor_id FROM \"MinorBooking\"";
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query); ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                int offeringId = rs.getInt("offering_id");
+                int minorId = rs.getInt("minor_id");
+                minorBookings.add(new MinorBooking(offeringId, minorId) {{
+                    setId(id); // Set the generated ID
+                }});
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return minorBookings;
+    }
+
+    public static boolean deleteClientBooking(int bookingId) {
+        String query = "DELETE FROM \"ClientBooking\" WHERE id = ?";
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, bookingId);
+            pstmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean deleteMinorBooking(int bookingId) {
+        String query = "DELETE FROM \"MinorBooking\" WHERE id = ?";
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, bookingId);
             pstmt.executeUpdate();
             return true;
         } catch (SQLException e) {
