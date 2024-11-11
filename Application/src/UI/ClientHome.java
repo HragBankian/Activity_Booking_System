@@ -31,29 +31,19 @@ public class ClientHome extends JFrame {
         btnMakeBooking.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                openMakeBookingPage();
+                new ClientMakeBooking(clientId).setVisible(true);
             }
         });
 
         btnManageBookings.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                openManageBookingsPage();
+                new ClientManageBooking(clientId).setVisible(true);
             }
         });
 
         add(btnMakeBooking);
         add(btnManageBookings);
-    }
-
-    private void openMakeBookingPage() {
-        // Code to open Make Booking page
-        JOptionPane.showMessageDialog(this, "Navigating to Make a Booking page...");
-    }
-
-    private void openManageBookingsPage() {
-        // Code to open Manage Bookings page
-        JOptionPane.showMessageDialog(this, "Navigating to Manage Bookings page...");
     }
 
     public static void main(String[] args) {

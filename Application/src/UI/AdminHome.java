@@ -32,7 +32,7 @@ public class AdminHome extends JFrame {
         btnBookingsCRUD.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //new BookingsCRUD().setVisible(true); // Open Bookings CRUD window
+                new BookingsCRUD().setVisible(true); // Open Bookings CRUD window
             }
         });
 
