@@ -439,6 +439,154 @@ public class DatabaseConnection {
         }
     }
 
+    public static ArrayList<Offering> getAvailableOfferingsForClient(int clientId) {
+        ArrayList<Offering> availableOfferings = new ArrayList<>();
+        String query = "SELECT * FROM \"Offering\" WHERE instructor_id IS NOT NULL AND num_students < capacity " +
+                "AND id NOT IN (SELECT offering_id FROM \"ClientBooking\" WHERE client_id = ?)";
+
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, clientId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    int id = rs.getInt("id");
+                    String title = rs.getString("title");
+                    String organization = rs.getString("organization");
+                    String city = rs.getString("city");
+                    String time = rs.getString("time");
+                    int capacity = rs.getInt("capacity");
+                    int numStudents = rs.getInt("num_students");
+
+                    Offering offering = new Offering(id, title, organization, city, time, capacity);
+                    offering.setNumStudents(numStudents);  // Set numStudents using setter
+                    availableOfferings.add(offering);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return availableOfferings;
+    }
+
+    public static boolean bookOfferingForClient(int offeringId, int clientId) {
+        String clientBookingQuery = "INSERT INTO \"ClientBooking\" (offering_id, client_id) VALUES (?, ?)";
+        String updateOfferingQuery = "UPDATE \"Offering\" SET num_students = num_students + 1 WHERE id = ? AND num_students < capacity";
+
+        try (Connection conn = connect()) {
+            conn.setAutoCommit(false);  // Start transaction
+
+            // Insert client booking
+            try (PreparedStatement pstmt = conn.prepareStatement(clientBookingQuery)) {
+                pstmt.setInt(1, offeringId);
+                pstmt.setInt(2, clientId);
+                pstmt.executeUpdate();
+            }
+
+            // Update the offering's num_students
+            try (PreparedStatement pstmt = conn.prepareStatement(updateOfferingQuery)) {
+                pstmt.setInt(1, offeringId);
+                int rowsUpdated = pstmt.executeUpdate();
+
+                if (rowsUpdated == 0) {
+                    conn.rollback();  // Rollback if update fails
+                    return false;
+                }
+            }
+
+            conn.commit();  // Commit the transaction
+            return true;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static ArrayList<ClientBooking> getClientBookingsForClient(int clientId) {
+        ArrayList<ClientBooking> clientBookings = new ArrayList<>();
+        String clientBookingQuery = "SELECT cb.id, cb.offering_id FROM \"ClientBooking\" cb WHERE cb.client_id = ?";
+
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(clientBookingQuery)) {
+            pstmt.setInt(1, clientId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    int id = rs.getInt("id");
+                    int offeringId = rs.getInt("offering_id");
+
+                    // Create a new ClientBooking object using the correct constructor
+                    ClientBooking booking = new ClientBooking(offeringId, clientId);
+                    booking.setId(id);  // Set the id for the ClientBooking
+
+                    clientBookings.add(booking);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return clientBookings;
+    }
+
+    public static Offering getOfferingById(int offeringId) {
+        Offering offering = null;
+        String offeringQuery = "SELECT * FROM \"Offering\" WHERE id = ?";
+
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(offeringQuery)) {
+            pstmt.setInt(1, offeringId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    String title = rs.getString("title");
+                    String organization = rs.getString("organization");
+                    String city = rs.getString("city");
+                    String time = rs.getString("time");
+                    int capacity = rs.getInt("capacity");
+                    int numStudents = rs.getInt("num_students");
+
+                    offering = new Offering(offeringId, title, organization, city, time, capacity);
+                    offering.setNumStudents(numStudents);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return offering;
+    }
+
+    public static boolean cancelClientBooking(int bookingId) {
+        String getOfferingIdQuery = "SELECT offering_id FROM \"ClientBooking\" WHERE id = ?";
+        String deleteBookingQuery = "DELETE FROM \"ClientBooking\" WHERE id = ?";
+        String updateOfferingQuery = "UPDATE \"Offering\" SET num_students = num_students - 1 WHERE id = ?";
+
+        try (Connection conn = connect();
+             PreparedStatement getOfferingStmt = conn.prepareStatement(getOfferingIdQuery);
+             PreparedStatement deleteBookingStmt = conn.prepareStatement(deleteBookingQuery);
+             PreparedStatement updateOfferingStmt = conn.prepareStatement(updateOfferingQuery)) {
+
+            // Get the offering_id for the booking
+            getOfferingStmt.setInt(1, bookingId);
+            try (ResultSet rs = getOfferingStmt.executeQuery()) {
+                if (rs.next()) {
+                    int offeringId = rs.getInt("offering_id");
+
+                    // Delete the booking from client_bookings table
+                    deleteBookingStmt.setInt(1, bookingId);
+                    deleteBookingStmt.executeUpdate();
+
+                    // Decrement the num_students in the offerings table
+                    updateOfferingStmt.setInt(1, offeringId);
+                    updateOfferingStmt.executeUpdate();
+
+                    return true;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
     public static void main(String[] args) {
         connect();
     }
