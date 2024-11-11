@@ -15,11 +15,11 @@ public class AdminHome extends JFrame {
         setLayout(new GridLayout(5, 1, 10, 10)); // Set layout with 5 rows, 1 column
 
         // Create buttons for each CRUD operation
-        JButton btnOfferingsCRUD = new JButton("Offerings CRUD");
-        JButton btnBookingsCRUD = new JButton("Bookings CRUD");
-        JButton btnClientsCRUD = new JButton("Clients CRUD");
-        JButton btnGuardiansCRUD = new JButton("Guardians CRUD");
-        JButton btnInstructorsCRUD = new JButton("Instructors CRUD");
+        JButton btnOfferingsCRUD = new JButton("Offerings");
+        JButton btnBookingsCRUD = new JButton("Bookings");
+        JButton btnClientsCRUD = new JButton("Clients");
+        JButton btnGuardiansCRUD = new JButton("Guardians/Minors");
+        JButton btnInstructorsCRUD = new JButton("Instructors");
 
         // Add action listeners for buttons
         btnOfferingsCRUD.addActionListener(new ActionListener() {
@@ -39,21 +39,21 @@ public class AdminHome extends JFrame {
         btnClientsCRUD.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //new ClientsCRUD().setVisible(true); // Open Clients CRUD window
+                new ClientsCRUD().setVisible(true); // Open Clients CRUD window
             }
         });
 
         btnGuardiansCRUD.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //new GuardiansCRUD().setVisible(true); // Open Guardians CRUD window
+                new GuardiansMinorsCRUD().setVisible(true); // Open Guardians CRUD window
             }
         });
 
         btnInstructorsCRUD.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //new InstructorsCRUD().setVisible(true); // Open Instructors CRUD window
+                new InstructorsCRUD().setVisible(true); // Open Instructors CRUD window
             }
         });
 

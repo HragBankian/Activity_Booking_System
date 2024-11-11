@@ -3,6 +3,7 @@ package DB;
 //import org.mindrot.jbcrypt.BCrypt;
 
 public abstract class User {
+    protected int id;
     protected String fullName;
     protected String email;
     protected String password;
@@ -17,6 +18,8 @@ public abstract class User {
         this.dateOfBirth = dateOfBirth;
     }
 
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
     public String getFullName() { return fullName; }
     public String getEmail() { return email; }
     public String getPassword() { return password; }

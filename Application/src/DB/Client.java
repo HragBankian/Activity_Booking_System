@@ -10,4 +10,5 @@ public class Client extends User {
     public String getUserType() {
         return "Client";
     }
+
 }
