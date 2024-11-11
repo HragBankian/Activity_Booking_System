@@ -368,11 +368,37 @@ public class DatabaseConnection {
     }
 
     public static boolean deleteInstructor(int instructorId) {
-        String query = "DELETE FROM \"Instructor\" WHERE id = ?";
-        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setInt(1, instructorId);  // Set instructor ID for deletion
-            pstmt.executeUpdate();
+        // Query to get all offerings by the instructor
+        String getOfferingsQuery = "SELECT id FROM \"Offering\" WHERE instructor_id = ?";
+        // Query to delete bookings associated with these offerings
+        String deleteBookingsQuery = "DELETE FROM \"ClientBooking\" WHERE offering_id = ?";
+        // Query to delete the instructor
+        String deleteInstructorQuery = "DELETE FROM \"Instructor\" WHERE id = ?";
+
+        try (Connection conn = connect();
+             PreparedStatement getOfferingsStmt = conn.prepareStatement(getOfferingsQuery);
+             PreparedStatement deleteBookingsStmt = conn.prepareStatement(deleteBookingsQuery);
+             PreparedStatement deleteInstructorStmt = conn.prepareStatement(deleteInstructorQuery)) {
+
+            // Step 1: Get all offerings associated with the instructor
+            getOfferingsStmt.setInt(1, instructorId);
+            ResultSet rs = getOfferingsStmt.executeQuery();
+
+            // Step 2: For each offering, delete the associated bookings
+            while (rs.next()) {
+                int offeringId = rs.getInt("id");
+
+                // Delete all bookings for this offering
+                deleteBookingsStmt.setInt(1, offeringId);
+                deleteBookingsStmt.executeUpdate();
+            }
+
+            // Step 3: Finally, delete the instructor
+            deleteInstructorStmt.setInt(1, instructorId);
+            deleteInstructorStmt.executeUpdate();
+
             return true;
+
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
