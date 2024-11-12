@@ -9,6 +9,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.Arrays;
 
 public class OfferingsCRUD extends JFrame {
     private JTable offeringsTable;
@@ -48,7 +52,7 @@ public class OfferingsCRUD extends JFrame {
         panel.add(organizationField);
         panel.add(new JLabel("City:"));
         panel.add(cityField);
-        panel.add(new JLabel("Time:"));
+        panel.add(new JLabel("Time (DayOfWeek, StartTime, EndTime):"));
         panel.add(timeField);
         panel.add(new JLabel("Capacity:"));
         panel.add(capacityField);
@@ -124,13 +128,62 @@ public class OfferingsCRUD extends JFrame {
         }
     }
 
+    private boolean validateTime(String time) {
+        // Split the input string by commas to separate day, start time, and end time
+        String[] parts = time.split(",\\s*");  // Split on comma and optional spaces
+
+        // Ensure we have exactly three parts: day, start time, and end time
+        if (parts.length != 3) {
+            JOptionPane.showMessageDialog(this, "Invalid time format. Use format: DayOfWeek, StartTime, EndTime (e.g., Monday, 09:00, 10:00).", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        String dayOfWeek = parts[0].trim();
+        String startTimeString = parts[1].trim();
+        String endTimeString = parts[2].trim();
+
+        // Check that the day of the week is valid
+        List<String> validDays = Arrays.asList("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
+        if (!validDays.contains(dayOfWeek)) {
+            JOptionPane.showMessageDialog(this, "Invalid day of week. Use a valid day (e.g., Monday).", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        // Validate start and end times with SimpleDateFormat using 24-hour format
+        SimpleDateFormat timeFormat24Hour = new SimpleDateFormat("HH:mm");  // 24-hour format
+        timeFormat24Hour.setLenient(false); // Ensure strict parsing
+
+        try {
+            java.util.Date startTime = timeFormat24Hour.parse(startTimeString);
+            java.util.Date endTime = timeFormat24Hour.parse(endTimeString);
+
+            // Check that the end time is after the start time
+            if (!endTime.after(startTime)) {
+                JOptionPane.showMessageDialog(this, "End time must be after start time.", "Error", JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+        } catch (ParseException e) {
+            JOptionPane.showMessageDialog(this, "Invalid time format. Ensure times are in the format HH:mm (24-hour).", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        return true;
+    }
+
+
+
     private void createOffering() {
         try {
             String title = titleField.getText();
             String organization = organizationField.getText();
             String city = cityField.getText();
             String time = timeField.getText();
-            int capacity = Integer.parseInt(capacityField.getText()); // Handle potential parsing error
+
+            if (!validateTime(time)) {
+                return; // Stop if time is invalid
+            }
+
+            int capacity = Integer.parseInt(capacityField.getText());
             Integer instructorId = instructorIdField.getText().isEmpty() ? null : Integer.parseInt(instructorIdField.getText());
 
             Offering newOffering = new Offering(0, title, organization, city, time, capacity);
@@ -139,7 +192,7 @@ public class OfferingsCRUD extends JFrame {
             boolean success = DatabaseConnection.createOffering(newOffering);
             if (success) {
                 JOptionPane.showMessageDialog(this, "Offering created successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                loadOfferings(); // Refresh the table
+                loadOfferings();
             } else {
                 JOptionPane.showMessageDialog(this, "Error creating offering.", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -163,15 +216,19 @@ public class OfferingsCRUD extends JFrame {
             String organization = (String) tableModel.getValueAt(selectedRow, 2);
             String city = (String) tableModel.getValueAt(selectedRow, 3);
             String time = (String) tableModel.getValueAt(selectedRow, 4);
+
+            if (!validateTime(time)) {
+                return; // Stop if time is invalid
+            }
+
             Object capvalue = tableModel.getValueAt(selectedRow, 5);
             int capacity = (capvalue instanceof Integer) ? (Integer) capvalue : Integer.parseInt((String) capvalue);
-            System.out.println(capacity);
             Offering updatedOffering = new Offering(offeringId, title, organization, city, time, capacity);
 
             boolean success = DatabaseConnection.updateOffering(offeringId, updatedOffering);
             if (success) {
                 JOptionPane.showMessageDialog(this, "Offering updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                loadOfferings(); // Refresh the table
+                loadOfferings();
             } else {
                 JOptionPane.showMessageDialog(this, "Error updating offering.", "Error", JOptionPane.ERROR_MESSAGE);
             }
