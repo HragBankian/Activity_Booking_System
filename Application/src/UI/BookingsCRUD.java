@@ -1,7 +1,7 @@
 package UI;
 
+import DB.Admin;
 import DB.ClientBooking;
-import DB.DatabaseConnection;
 import DB.MinorBooking;
 
 import javax.swing.*;
@@ -72,7 +72,7 @@ public class BookingsCRUD extends JFrame {
         // Clear the table before reloading data
         clientBookingsTableModel.setRowCount(0);
 
-        ArrayList<ClientBooking> clientBookings = DatabaseConnection.getClientBookings();
+        ArrayList<ClientBooking> clientBookings = Admin.getClientBookings();
 
         // Populate the table with client booking data
         for (ClientBooking booking : clientBookings) {
@@ -84,11 +84,28 @@ public class BookingsCRUD extends JFrame {
         }
     }
 
+    private void deleteClientBooking() {
+        int selectedRow = clientBookingsTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a client booking to delete.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        int bookingId = (int) clientBookingsTableModel.getValueAt(selectedRow, 0);
+        boolean success = Admin.deleteClientBooking(bookingId);
+        if (success) {
+            JOptionPane.showMessageDialog(this, "Client booking deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            loadClientBookings(); // Refresh the table
+        } else {
+            JOptionPane.showMessageDialog(this, "Error deleting client booking.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     private void loadMinorBookings() {
         // Clear the table before reloading data
         minorBookingsTableModel.setRowCount(0);
 
-        ArrayList<MinorBooking> minorBookings = DatabaseConnection.getMinorBookings();
+        ArrayList<MinorBooking> minorBookings = Admin.getMinorBookings();
 
         // Populate the table with minor booking data
         for (MinorBooking booking : minorBookings) {
@@ -100,23 +117,6 @@ public class BookingsCRUD extends JFrame {
         }
     }
 
-    private void deleteClientBooking() {
-        int selectedRow = clientBookingsTable.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Please select a client booking to delete.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        int bookingId = (int) clientBookingsTableModel.getValueAt(selectedRow, 0);
-        boolean success = DatabaseConnection.deleteClientBooking(bookingId);
-        if (success) {
-            JOptionPane.showMessageDialog(this, "Client booking deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-            loadClientBookings(); // Refresh the table
-        } else {
-            JOptionPane.showMessageDialog(this, "Error deleting client booking.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
     private void deleteMinorBooking() {
         int selectedRow = minorBookingsTable.getSelectedRow();
         if (selectedRow == -1) {
@@ -125,7 +125,7 @@ public class BookingsCRUD extends JFrame {
         }
 
         int bookingId = (int) minorBookingsTableModel.getValueAt(selectedRow, 0);
-        boolean success = DatabaseConnection.deleteMinorBooking(bookingId);
+        boolean success = Admin.deleteMinorBooking(bookingId);
         if (success) {
             JOptionPane.showMessageDialog(this, "Minor booking deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             loadMinorBookings(); // Refresh the table

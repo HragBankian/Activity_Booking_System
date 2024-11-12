@@ -1,6 +1,7 @@
 package UI;
 
 import DB.DatabaseConnection;
+import DB.Instructor;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -12,10 +13,10 @@ import java.util.List;
 public class SelectOffering extends JFrame {
     private JTable offeringsTable;
     private DefaultTableModel tableModel;
-    private int instructorId;
+    private static Instructor instructor;
 
-    public SelectOffering(int instructorId) {
-        this.instructorId = instructorId;
+    public SelectOffering(Instructor instructor) {
+        this.instructor = instructor;
 
         setTitle("Select Offering");
         setSize(600, 400);
@@ -48,7 +49,7 @@ public class SelectOffering extends JFrame {
 
     private void loadOfferings() {
         // Fetch offerings where instructor_id is null using DatabaseConnection class
-        List<Object[]> offerings = DatabaseConnection.getAvailableOfferings(instructorId);
+        List<Object[]> offerings = instructor.getAvailableOfferings();
 
         // Clear the existing table data
         tableModel.setRowCount(0);
@@ -70,7 +71,7 @@ public class SelectOffering extends JFrame {
         int offeringId = (int) tableModel.getValueAt(selectedRow, 0);
 
         // Update the offering with the instructor's ID using DatabaseConnection class
-        boolean success = DatabaseConnection.assignInstructorToOffering(offeringId, instructorId);
+        boolean success = instructor.selectOffering(offeringId);
         if (success) {
             JOptionPane.showMessageDialog(this, "Offering selected successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             // Optionally, update the table and show feedback
@@ -83,6 +84,6 @@ public class SelectOffering extends JFrame {
     public static void main(String[] args) {
         // Pass a sample instructor ID (replace with actual ID when needed)
         int instructorId = 1;  // For example
-        SwingUtilities.invokeLater(() -> new SelectOffering(instructorId).setVisible(true));
+        SwingUtilities.invokeLater(() -> new SelectOffering(instructor).setVisible(true));
     }
 }

@@ -1,7 +1,7 @@
 package UI;
 
+import DB.Admin;
 import DB.Client;
-import DB.DatabaseConnection;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -55,7 +55,7 @@ public class ClientsCRUD extends JFrame {
         // Clear the table before reloading data
         tableModel.setRowCount(0);
 
-        ArrayList<Client> clients = DatabaseConnection.getClients();
+        ArrayList<Client> clients = Admin.getClients();
 
         // Populate the table with client data
         for (Client client : clients) {
@@ -77,7 +77,7 @@ public class ClientsCRUD extends JFrame {
         }
 
         int clientId = (int) tableModel.getValueAt(selectedRow, 0);
-        boolean success = DatabaseConnection.deleteClient(clientId);
+        boolean success = Admin.deleteClient(clientId);
         if (success) {
             JOptionPane.showMessageDialog(this, "Client deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             loadClients(); // Refresh the table

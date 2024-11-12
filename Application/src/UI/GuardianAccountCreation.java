@@ -2,6 +2,7 @@ package UI;
 
 import DB.Guardian;
 import DB.DatabaseConnection;
+import DB.Minor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -112,7 +113,8 @@ public class GuardianAccountCreation extends JFrame {
                             String[] minors = minorField.getText().split(",");
                             for (String minorName : minors){
                                 if(!minorName.isEmpty()){
-                                    DatabaseConnection.insertMinor(minorName, guardianId);
+                                    Minor minor = new Minor(minorName, guardianId);
+                                    DatabaseConnection.insertMinor(minor);
                                 }
                             }
                             JOptionPane.showMessageDialog(null, "Guardian account created successfully!");

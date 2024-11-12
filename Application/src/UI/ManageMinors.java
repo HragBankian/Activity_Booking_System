@@ -1,6 +1,8 @@
 package UI;
 
+import DB.Admin;
 import DB.DatabaseConnection;
+import DB.Guardian;
 import DB.Minor;
 
 import javax.swing.*;
@@ -15,10 +17,10 @@ public class ManageMinors extends JFrame {
     private DefaultTableModel minorsTableModel;
     private JTextField minorNameField;
     private JButton addMinorButton, deleteMinorButton;
-    private int guardianId;
+    private static Guardian guardian;
 
-    public ManageMinors(int guardianId) {
-        this.guardianId = guardianId;
+    public ManageMinors(Guardian guardian) {
+        this.guardian = guardian;
 
         setTitle("Manage Minors");
         setSize(600, 400);
@@ -72,7 +74,7 @@ public class ManageMinors extends JFrame {
         minorsTableModel.setRowCount(0);
 
         // Retrieve and populate minors for this guardian
-        ArrayList<Minor> minors = DatabaseConnection.getMinorsObjectForGuardian(guardianId);
+        ArrayList<Minor> minors = guardian.getMinors();
         for (Minor minor : minors) {
             minorsTableModel.addRow(new Object[]{minor.getId(), minor.getFullName()});
         }
@@ -85,7 +87,7 @@ public class ManageMinors extends JFrame {
             return;
         }
 
-        boolean success = DatabaseConnection.addMinor(minorName, guardianId);
+        boolean success = guardian.addMinor(minorName);
         if (success) {
             JOptionPane.showMessageDialog(this, "Minor added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             minorNameField.setText("");  // Clear input field
@@ -105,7 +107,7 @@ public class ManageMinors extends JFrame {
         Object minorValue = minorsTableModel.getValueAt(selectedRow, 0);
         int minorId = (minorValue instanceof Integer) ? (Integer) minorValue : Integer.parseInt((String) minorValue);
 
-        boolean success = DatabaseConnection.deleteMinor(minorId);
+        boolean success = Guardian.deleteMinor(minorId);
         if (success) {
             JOptionPane.showMessageDialog(this, "Minor deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             loadMinors();  // Reload minors list
@@ -115,6 +117,6 @@ public class ManageMinors extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new ManageMinors(1).setVisible(true));  // Example with guardianId = 1
+        SwingUtilities.invokeLater(() -> new ManageMinors(guardian).setVisible(true));  // Example with guardianId = 1
     }
 }

@@ -1,6 +1,8 @@
 package UI;
 
 import DB.DatabaseConnection;
+import DB.Guardian;
+import DB.Minor;
 import DB.Offering;
 
 import javax.swing.*;
@@ -16,12 +18,12 @@ public class GuardianMakeBooking extends JFrame {
     private JTable offeringsTable;
     private DefaultTableModel offeringsTableModel;
     private JButton bookButton;
-    private static int guardianId;
     private ButtonGroup minorsButtonGroup;
     private JPanel minorsPanel;
+    private static Guardian guardian;
 
-    public GuardianMakeBooking(int guardianId) {
-        this.guardianId = guardianId;
+    public GuardianMakeBooking(Guardian guardian) {
+        this.guardian = guardian;
 
         setTitle("Guardian Make Booking");
         setSize(800, 500);
@@ -67,14 +69,14 @@ public class GuardianMakeBooking extends JFrame {
         minorsPanel.removeAll();
         minorsButtonGroup = new ButtonGroup();
 
-        List<String> minors = DatabaseConnection.getMinorsForGuardian(guardianId);
-        for (String minorName : minors) {
-            JRadioButton minorButton = new JRadioButton(minorName);
+        ArrayList<Minor> minors = guardian.getMinors();
+        for (Minor minor : minors) {
+            JRadioButton minorButton = new JRadioButton(minor.getFullName());
             minorsButtonGroup.add(minorButton);
             minorsPanel.add(minorButton);
         }
 
-        if (minors.size() == 0) {
+        if (minors.isEmpty()) {
             minorsPanel.add(new JLabel("No minors associated with this guardian."));
         }
         minorsPanel.revalidate();
@@ -84,7 +86,7 @@ public class GuardianMakeBooking extends JFrame {
     private void loadAvailableOfferings() {
         offeringsTableModel.setRowCount(0);
 
-        ArrayList<Offering> availableOfferings = DatabaseConnection.getAvailableOfferingsForGuardian();
+        ArrayList<Offering> availableOfferings = Guardian.getAvailableOfferings();
 
         for (Offering offering : availableOfferings) {
             offeringsTableModel.addRow(new Object[]{
@@ -116,7 +118,7 @@ public class GuardianMakeBooking extends JFrame {
         Object offeringValue = offeringsTableModel.getValueAt(selectedRow, 0);
         int offeringId = (offeringValue instanceof Integer) ? (Integer) offeringValue : Integer.parseInt((String) offeringValue);
 
-        boolean success = DatabaseConnection.bookOfferingForMinor(guardianId, selectedMinorName, offeringId);
+        boolean success = guardian.bookOfferingForMinor(selectedMinorName, offeringId);
         if (success) {
             JOptionPane.showMessageDialog(this, "Booking successful for " + selectedMinorName + "!", "Success", JOptionPane.INFORMATION_MESSAGE);
             loadAvailableOfferings();  // Reload available offerings
@@ -137,6 +139,6 @@ public class GuardianMakeBooking extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new GuardianMakeBooking(guardianId).setVisible(true)); // Example with guardianId = 1
+        SwingUtilities.invokeLater(() -> new GuardianMakeBooking(guardian).setVisible(true)); // Example with guardianId = 1
     }
 }

@@ -1,14 +1,12 @@
 package UI;
 
+import DB.City;
 import DB.Instructor;
 import DB.DatabaseConnection;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.regex.Pattern;
 
 public class InstructorAccountCreation extends JFrame {
     private JTextField nameField;
@@ -123,8 +121,9 @@ public class InstructorAccountCreation extends JFrame {
 
                     int instructorId = DatabaseConnection.insertUser(newInstructor);
                     if (instructorId != -1) {
-                        for (String city : selectedCities) {
-                            DatabaseConnection.insertCity(city, instructorId);
+                        for (String cityName : selectedCities) {
+                            City city = new City(cityName, instructorId);
+                            DatabaseConnection.insertCity(city);
                         }
                         JOptionPane.showMessageDialog(null, "Instructor account created successfully!");
                         dispose();

@@ -1,6 +1,7 @@
 package UI;
 
 import DB.DatabaseConnection;
+import DB.Instructor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,11 +10,11 @@ import java.awt.event.ActionListener;
 
 public class InstructorHome extends JFrame {
     private JLabel welcomeLabel;
-    private static int instructorId;
+    private static Instructor instructor;
 
-    public InstructorHome(int instructorId) {
-        this.instructorId = instructorId;
-        String name = DatabaseConnection.getUserNameById(instructorId, "Instructor");
+    public InstructorHome(Instructor instructor) {
+        this.instructor = instructor;
+        String instructorFullName = instructor.getFullName();
 
         setTitle("Instructor Home");
         setSize(400, 300);
@@ -21,7 +22,7 @@ public class InstructorHome extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new GridLayout(3, 1, 10, 10));
 
-        welcomeLabel = new JLabel("Welcome " + name);
+        welcomeLabel = new JLabel("Welcome " + instructorFullName);
         add(welcomeLabel, BorderLayout.NORTH);
 
         JButton btnSelectOffering = new JButton("Select An Offering");
@@ -31,14 +32,14 @@ public class InstructorHome extends JFrame {
         btnSelectOffering.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new SelectOffering(instructorId).setVisible(true);
+                new SelectOffering(instructor).setVisible(true);
             }
         });
 
         btnManageLessons.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new ManageLessons(instructorId).setVisible(true);
+                new ManageLessons(instructor).setVisible(true);
             }
         });
 
@@ -47,6 +48,6 @@ public class InstructorHome extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new InstructorHome(instructorId).setVisible(true));
+        SwingUtilities.invokeLater(() -> new InstructorHome(instructor).setVisible(true));
     }
 }

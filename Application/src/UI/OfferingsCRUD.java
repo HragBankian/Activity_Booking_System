@@ -1,7 +1,7 @@
 package UI;
 
+import DB.Admin;
 import DB.Offering;
-import DB.DatabaseConnection;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -107,27 +107,6 @@ public class OfferingsCRUD extends JFrame {
         });
     }
 
-    private void loadOfferings() {
-        // Clear the table before reloading data
-        tableModel.setRowCount(0);
-
-        ArrayList<Offering> offerings = DatabaseConnection.getOfferings();
-
-        // Populate the table with offerings
-        for (Offering offering : offerings) {
-            int id = offering.getId();
-            String title = offering.getTitle();
-            String organization = offering.getOrganization();
-            String city = offering.getCity();
-            String time = offering.getTime();
-            int capacity = offering.getCapacity();
-            int numStudents = offering.getNumStudents();
-            Integer instructorId = offering.getInstructorId();
-
-            tableModel.addRow(new Object[]{id, title, organization, city, time, capacity, numStudents, instructorId});
-        }
-    }
-
     private boolean validateTime(String time) {
         // Split the input string by commas to separate day, start time, and end time
         String[] parts = time.split(",\\s*");  // Split on comma and optional spaces
@@ -170,8 +149,6 @@ public class OfferingsCRUD extends JFrame {
         return true;
     }
 
-
-
     private void createOffering() {
         try {
             String title = titleField.getText();
@@ -189,7 +166,7 @@ public class OfferingsCRUD extends JFrame {
             Offering newOffering = new Offering(0, title, organization, city, time, capacity);
             newOffering.setInstructorId(instructorId);
 
-            boolean success = DatabaseConnection.createOffering(newOffering);
+            boolean success = Admin.createOffering(newOffering);
             if (success) {
                 JOptionPane.showMessageDialog(this, "Offering created successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
                 loadOfferings();
@@ -198,6 +175,27 @@ public class OfferingsCRUD extends JFrame {
             }
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Please enter valid numeric values for Capacity and Instructor ID.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void loadOfferings() {
+        // Clear the table before reloading data
+        tableModel.setRowCount(0);
+
+        ArrayList<Offering> offerings = Admin.getOfferings();
+
+        // Populate the table with offerings
+        for (Offering offering : offerings) {
+            int id = offering.getId();
+            String title = offering.getTitle();
+            String organization = offering.getOrganization();
+            String city = offering.getCity();
+            String time = offering.getTime();
+            int capacity = offering.getCapacity();
+            int numStudents = offering.getNumStudents();
+            Integer instructorId = offering.getInstructorId();
+
+            tableModel.addRow(new Object[]{id, title, organization, city, time, capacity, numStudents, instructorId});
         }
     }
 
@@ -225,7 +223,7 @@ public class OfferingsCRUD extends JFrame {
             int capacity = (capvalue instanceof Integer) ? (Integer) capvalue : Integer.parseInt((String) capvalue);
             Offering updatedOffering = new Offering(offeringId, title, organization, city, time, capacity);
 
-            boolean success = DatabaseConnection.updateOffering(offeringId, updatedOffering);
+            boolean success = Admin.updateOffering(offeringId, updatedOffering);
             if (success) {
                 JOptionPane.showMessageDialog(this, "Offering updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
                 loadOfferings();
@@ -245,7 +243,7 @@ public class OfferingsCRUD extends JFrame {
         }
 
         int offeringId = (int) tableModel.getValueAt(selectedRow, 0);
-        boolean success = DatabaseConnection.deleteOffering(offeringId);
+        boolean success = Admin.deleteOffering(offeringId);
         if (success) {
             JOptionPane.showMessageDialog(this, "Offering deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             loadOfferings(); // Refresh the table

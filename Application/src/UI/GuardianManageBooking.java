@@ -1,8 +1,6 @@
 package UI;
 
-import DB.DatabaseConnection;
-import DB.MinorBooking;
-import DB.Offering;
+import DB.*;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -15,10 +13,10 @@ public class GuardianManageBooking extends JFrame {
     private JTable minorBookingsTable;
     private DefaultTableModel minorBookingsTableModel;
     private JButton cancelBookingButton;
-    private static int guardianId;
+    private static Guardian guardian;
 
-    public GuardianManageBooking(int guardianId) {
-        this.guardianId = guardianId;
+    public GuardianManageBooking(Guardian guardian) {
+        this.guardian = guardian;
 
         setTitle("Guardian Manage Booking");
         setSize(800, 500);
@@ -59,19 +57,20 @@ public class GuardianManageBooking extends JFrame {
         minorBookingsTableModel.setRowCount(0);
 
         // Get all minors for the guardian
-        ArrayList<Integer> minorIds = DatabaseConnection.getMinorIdsForGuardian(guardianId);
+        ArrayList<Minor> minors = guardian.getMinors();
 
-        for (int minorId : minorIds) {
+        for (Minor minor : minors) {
             // Get the minor's full name based on minorId
-            String minorFullName = DatabaseConnection.getMinorFullName(minorId);
+            String minorFullName = minor.getFullName();
+            int minorId = minor.getId();
 
             // Get bookings for each minor
-            ArrayList<MinorBooking> minorBookings = DatabaseConnection.getMinorBookingsForGuardian(minorId);
+            ArrayList<MinorBooking> minorBookings = guardian.getBookingsForMinor(minorId);
 
             // Populate the table with minor bookings and corresponding offering details
             for (MinorBooking booking : minorBookings) {
                 int offeringId = booking.getOfferingId();
-                Offering offering = DatabaseConnection.getOfferingById(offeringId);
+                Offering offering = Offering.getOfferingById(offeringId);
 
                 String title = offering.getTitle();
                 String organization = offering.getOrganization();
@@ -88,7 +87,6 @@ public class GuardianManageBooking extends JFrame {
         }
     }
 
-
     private void cancelBooking() {
         int selectedRow = minorBookingsTable.getSelectedRow();
         if (selectedRow == -1) {
@@ -103,7 +101,7 @@ public class GuardianManageBooking extends JFrame {
         int offeringId = (offeringValue instanceof Integer) ? (Integer) offeringValue : Integer.parseInt((String) offeringValue);
 
         // Cancel the booking by removing the MinorBooking record and decrementing the num_students of the offering
-        boolean success = DatabaseConnection.cancelMinorBooking(bookingId, offeringId);
+        boolean success = guardian.cancelMinorBooking(bookingId, offeringId);
         if (success) {
             JOptionPane.showMessageDialog(this, "Booking canceled successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             loadGuardianBookings();  // Reload the guardian's bookings
@@ -113,6 +111,6 @@ public class GuardianManageBooking extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new GuardianManageBooking(guardianId).setVisible(true)); // Example with guardianId = 1
+        SwingUtilities.invokeLater(() -> new GuardianManageBooking(guardian).setVisible(true)); // Example with guardianId = 1
     }
 }

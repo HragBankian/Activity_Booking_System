@@ -1,5 +1,7 @@
 package UI;
 
+import DB.*;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -61,22 +63,24 @@ public class Login extends JFrame {
                 String email = emailField.getText();
                 String password = new String(passwordField.getPassword());
 
-                int id = DB.DatabaseConnection.validateLogin(accountType, email, password);
-                if (id != -1) {
+                User user = User.validateLogin(accountType, email, password);
+                if (user != null) {
                     JOptionPane.showMessageDialog(Login.this, "Login successful!", "Login", JOptionPane.INFORMATION_MESSAGE);
                     JFrame nextPage = null;
                     switch (accountType){
                         case "Admin":
+                            Admin admin = Admin.getInstance();
+                            admin.initialize(email, password);
                             nextPage = new AdminHome();
                             break;
                         case "Client":
-                            nextPage = new ClientHome(id);
+                            nextPage = new ClientHome((Client) user);
                             break;
                         case "Guardian":
-                            nextPage = new GuardianHome(id);
+                            nextPage = new GuardianHome((Guardian) user);
                             break;
                         case "Instructor":
-                            nextPage = new InstructorHome(id);
+                            nextPage = new InstructorHome((Instructor) user);
                             break;
                         default:
                             nextPage = new Home();

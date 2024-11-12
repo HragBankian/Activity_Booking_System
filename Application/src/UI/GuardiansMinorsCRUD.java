@@ -1,6 +1,6 @@
 package UI;
 
-import DB.DatabaseConnection;
+import DB.Admin;
 import DB.Guardian;
 import DB.Minor;
 
@@ -75,7 +75,7 @@ public class GuardiansMinorsCRUD extends JFrame {
         // Clear the table before reloading data
         guardiansTableModel.setRowCount(0);
 
-        ArrayList<Guardian> guardians = DatabaseConnection.getGuardians();
+        ArrayList<Guardian> guardians = Admin.getGuardians();
 
         // Populate the table with guardian data
         for (Guardian guardian : guardians) {
@@ -89,11 +89,29 @@ public class GuardiansMinorsCRUD extends JFrame {
         }
     }
 
+    private void deleteGuardian() {
+        int selectedRow = guardiansTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a guardian to delete.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        int guardianId = (int) guardiansTableModel.getValueAt(selectedRow, 0);
+        boolean success = Admin.deleteGuardian(guardianId);
+        if (success) {
+            JOptionPane.showMessageDialog(this, "Guardian deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            loadGuardians(); // Refresh the guardians table
+            loadMinors(); // Refresh the minors table
+        } else {
+            JOptionPane.showMessageDialog(this, "Error deleting guardian.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     private void loadMinors() {
         // Clear the table before reloading data
         minorsTableModel.setRowCount(0);
 
-        ArrayList<Minor> minors = DatabaseConnection.getMinors();
+        ArrayList<Minor> minors = Admin.getMinors();
 
         // Populate the table with minor data
         for (Minor minor : minors) {
@@ -105,24 +123,6 @@ public class GuardiansMinorsCRUD extends JFrame {
         }
     }
 
-    private void deleteGuardian() {
-        int selectedRow = guardiansTable.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Please select a guardian to delete.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        int guardianId = (int) guardiansTableModel.getValueAt(selectedRow, 0);
-        boolean success = DatabaseConnection.deleteGuardian(guardianId);
-        if (success) {
-            JOptionPane.showMessageDialog(this, "Guardian deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-            loadGuardians(); // Refresh the guardians table
-            loadMinors(); // Refresh the minors table
-        } else {
-            JOptionPane.showMessageDialog(this, "Error deleting guardian.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
     private void deleteMinor() {
         int selectedRow = minorsTable.getSelectedRow();
         if (selectedRow == -1) {
@@ -131,7 +131,7 @@ public class GuardiansMinorsCRUD extends JFrame {
         }
 
         int minorId = (int) minorsTableModel.getValueAt(selectedRow, 0);
-        boolean success = DatabaseConnection.deleteMinor(minorId);
+        boolean success = Admin.deleteMinor(minorId);
         if (success) {
             JOptionPane.showMessageDialog(this, "Minor deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             loadMinors(); // Refresh the minors table

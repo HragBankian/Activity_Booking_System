@@ -1,6 +1,6 @@
 package UI;
 
-import DB.DatabaseConnection;
+import DB.Admin;
 import DB.Instructor;
 
 import javax.swing.*;
@@ -56,7 +56,7 @@ public class InstructorsCRUD extends JFrame {
         instructorsTableModel.setRowCount(0);
 
         // Fetch instructors from the database
-        ArrayList<Instructor> instructors = DatabaseConnection.getInstructors();
+        ArrayList<Instructor> instructors = Admin.getInstructors();
 
         // Populate the table with instructor data
         for (Instructor instructor : instructors) {
@@ -79,7 +79,7 @@ public class InstructorsCRUD extends JFrame {
         }
 
         int instructorId = (int) instructorsTableModel.getValueAt(selectedRow, 0);
-        boolean success = DatabaseConnection.deleteInstructor(instructorId);
+        boolean success = Admin.deleteInstructor(instructorId);
         if (success) {
             JOptionPane.showMessageDialog(this, "Instructor deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             loadInstructors(); // Refresh the instructors table

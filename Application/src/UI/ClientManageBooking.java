@@ -1,5 +1,6 @@
 package UI;
 
+import DB.Client;
 import DB.DatabaseConnection;
 import DB.ClientBooking;
 import DB.Offering;
@@ -15,10 +16,10 @@ public class ClientManageBooking extends JFrame {
     private JTable clientBookingsTable;
     private DefaultTableModel clientBookingsTableModel;
     private JButton cancelBookingButton;
-    private int clientId;
+    private static Client client;
 
-    public ClientManageBooking(int loggedInClientId) {
-        this.clientId = loggedInClientId;
+    public ClientManageBooking(Client client) {
+        this.client = client;
 
         setTitle("Client Manage Booking");
         setSize(800, 500);
@@ -58,12 +59,12 @@ public class ClientManageBooking extends JFrame {
         // Clear the table before reloading data
         clientBookingsTableModel.setRowCount(0);
 
-        ArrayList<ClientBooking> clientBookings = DatabaseConnection.getClientBookingsForClient(clientId);
+        ArrayList<ClientBooking> clientBookings = client.getBookings();
 
         // Populate the table with the client bookings and corresponding offering details
         for (ClientBooking booking : clientBookings) {
             int offeringId = booking.getOfferingId();
-            Offering offering = DatabaseConnection.getOfferingById(offeringId);
+            Offering offering = Offering.getOfferingById(offeringId);
 
             String title = offering.getTitle();
             String organization = offering.getOrganization();
@@ -88,7 +89,7 @@ public class ClientManageBooking extends JFrame {
         int bookingId = (bookingValue instanceof Integer) ? (Integer) bookingValue : Integer.parseInt((String) bookingValue);
 
         // Cancel the booking by removing the ClientBooking record and decrementing the num_students of the offering
-        boolean success = DatabaseConnection.cancelClientBooking(bookingId);
+        boolean success = client.cancelBooking(bookingId);
         if (success) {
             JOptionPane.showMessageDialog(this, "Booking canceled successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             loadClientBookings();  // Reload the client's bookings
@@ -98,6 +99,6 @@ public class ClientManageBooking extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new ClientManageBooking(1).setVisible(true)); // Example with clientId = 1
+        SwingUtilities.invokeLater(() -> new ClientManageBooking(client).setVisible(true)); // Example with clientId = 1
     }
 }

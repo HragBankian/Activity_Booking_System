@@ -1,6 +1,6 @@
 package UI;
 
-import DB.DatabaseConnection;
+import DB.Guardian;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,11 +9,11 @@ import java.awt.event.ActionListener;
 
 public class GuardianHome extends JFrame {
     private JLabel welcomeLabel;
-    private static int guardianId;
+    private static Guardian guardian;
 
-    public GuardianHome(int guardianId) {
-        this.guardianId = guardianId;
-        String name = DatabaseConnection.getUserNameById(guardianId, "Guardian");
+    public GuardianHome(Guardian guardian) {
+        this.guardian = guardian;
+        String guardianFullName = guardian.getFullName();
 
         setTitle("Guardian Home");
         setSize(400, 300);
@@ -21,7 +21,7 @@ public class GuardianHome extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridLayout(4, 1, 10, 10));
 
-        welcomeLabel = new JLabel("Welcome " + name);
+        welcomeLabel = new JLabel("Welcome " + guardianFullName);
         add(welcomeLabel, BorderLayout.NORTH);
 
         JButton btnMakeBooking = new JButton("Make a Booking");
@@ -32,21 +32,21 @@ public class GuardianHome extends JFrame {
         btnMakeBooking.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new GuardianMakeBooking(guardianId).setVisible(true);
+                new GuardianMakeBooking(guardian).setVisible(true);
             }
         });
 
         btnManageBookings.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new GuardianManageBooking(guardianId).setVisible(true);
+                new GuardianManageBooking(guardian).setVisible(true);
             }
         });
 
         btnManageMinors.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new ManageMinors(guardianId).setVisible(true);
+                new ManageMinors(guardian).setVisible(true);
             }
         });
 
@@ -56,6 +56,6 @@ public class GuardianHome extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new GuardianHome(guardianId).setVisible(true));
+        SwingUtilities.invokeLater(() -> new GuardianHome(guardian).setVisible(true));
     }
 }

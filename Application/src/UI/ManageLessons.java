@@ -1,6 +1,7 @@
 package UI;
 
 import DB.DatabaseConnection;
+import DB.Instructor;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -10,12 +11,12 @@ import java.awt.event.ActionListener;
 import java.util.List;
 
 public class ManageLessons extends JFrame {
-    private static int instructorId;
     private JTable lessonsTable;
     private DefaultTableModel tableModel;
+    private static Instructor instructor;
 
-    public ManageLessons(int instructorId) {
-        this.instructorId = instructorId;
+    public ManageLessons(Instructor instructor) {
+        this.instructor = instructor;
 
         setTitle("Manage Lessons");
         setSize(600, 400);
@@ -49,7 +50,7 @@ public class ManageLessons extends JFrame {
 
     private void loadLessons() {
         tableModel.setRowCount(0); // Clear existing rows
-        List<Object[]> lessons = DatabaseConnection.getInstructorLessons(instructorId);
+        List<Object[]> lessons = instructor.getLessons();
         for (Object[] lesson : lessons) {
             tableModel.addRow(lesson);
         }
@@ -63,7 +64,7 @@ public class ManageLessons extends JFrame {
         }
 
         int offeringId = (int) tableModel.getValueAt(selectedRow, 0);
-        boolean success = DatabaseConnection.cancelLesson(offeringId);
+        boolean success = Instructor.cancelLesson(offeringId);
         if (success) {
             JOptionPane.showMessageDialog(this, "Lesson canceled successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             loadLessons(); // Refresh the table after cancellation
@@ -73,6 +74,6 @@ public class ManageLessons extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new ManageLessons(instructorId).setVisible(true)); // Example instructorId = 1
+        SwingUtilities.invokeLater(() -> new ManageLessons(instructor).setVisible(true)); // Example instructorId = 1
     }
 }

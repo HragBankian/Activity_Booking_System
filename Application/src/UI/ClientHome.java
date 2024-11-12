@@ -1,6 +1,8 @@
 package UI;
 
-import DB.DatabaseConnection;
+
+import DB.Client;
+import DB.User;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,11 +11,11 @@ import java.awt.event.ActionListener;
 
 public class ClientHome extends JFrame {
     private JLabel welcomeLabel;
-    private static int clientId;
+    private static Client client;
 
-    public ClientHome(int clientId) {
-        this.clientId = clientId;
-        String name = DatabaseConnection.getUserNameById(clientId, "Client");
+    public ClientHome(Client client) {
+        this.client = client;
+        String clientFullName = client.getFullName();
 
         setTitle("Client Home");
         setSize(400, 300);
@@ -21,7 +23,7 @@ public class ClientHome extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridLayout(3, 1, 10, 10));
 
-        welcomeLabel = new JLabel("Welcome " + name);
+        welcomeLabel = new JLabel("Welcome " + clientFullName);
         //welcomeLabel.setFont(new Font("Serif", Font.BOLD, 18));
         add(welcomeLabel, BorderLayout.NORTH);
 
@@ -31,14 +33,14 @@ public class ClientHome extends JFrame {
         btnMakeBooking.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new ClientMakeBooking(clientId).setVisible(true);
+                new ClientMakeBooking(client).setVisible(true);
             }
         });
 
         btnManageBookings.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new ClientManageBooking(clientId).setVisible(true);
+                new ClientManageBooking(client).setVisible(true);
             }
         });
 
@@ -47,6 +49,6 @@ public class ClientHome extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new ClientHome(clientId).setVisible(true));
+        SwingUtilities.invokeLater(() -> new ClientHome(client).setVisible(true));
     }
 }

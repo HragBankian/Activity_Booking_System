@@ -1,8 +1,6 @@
 package UI;
 
-import DB.DatabaseConnection;
-import DB.Offering;
-import DB.ClientBooking;
+import DB.*;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -15,10 +13,10 @@ public class ClientMakeBooking extends JFrame {
     private JTable offeringsTable;
     private DefaultTableModel offeringsTableModel;
     private JButton bookButton;
-    private int loggedInClientId;
+    private static Client client;
 
-    public ClientMakeBooking(int loggedInClientId) {
-        this.loggedInClientId = loggedInClientId;
+    public ClientMakeBooking(Client client) {
+        this.client = client;
 
         setTitle("Client Make Booking");
         setSize(800, 500);
@@ -58,7 +56,7 @@ public class ClientMakeBooking extends JFrame {
         // Clear the table before reloading data
         offeringsTableModel.setRowCount(0);
 
-        ArrayList<Offering> availableOfferings = DatabaseConnection.getAvailableOfferingsForClient(loggedInClientId);
+        ArrayList<Offering> availableOfferings = client.getAvailableOfferings();
 
         // Populate the table with available offerings
         for (Offering offering : availableOfferings) {
@@ -81,20 +79,20 @@ public class ClientMakeBooking extends JFrame {
             return;
         }
 
-        // Get the offering ID from the first column (ID column)
+        // Get the offering ID
         Object offeringValue = offeringsTableModel.getValueAt(selectedRow, 0);
         int offeringId = (offeringValue instanceof Integer) ? (Integer) offeringValue : Integer.parseInt((String) offeringValue);
 
-        boolean success = DatabaseConnection.bookOfferingForClient(offeringId, loggedInClientId);
+        boolean success = client.bookOffering(offeringId);
         if (success) {
             JOptionPane.showMessageDialog(this, "Booking successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
-            loadAvailableOfferings();  // Reload available offerings
+            client.getAvailableOfferings();  // Reload available offerings
         } else {
             JOptionPane.showMessageDialog(this, "Error booking the offering.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new ClientMakeBooking(1).setVisible(true)); // Example with clientId = 1
+        SwingUtilities.invokeLater(() -> new ClientMakeBooking(client).setVisible(true));
     }
 }
