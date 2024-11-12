@@ -307,20 +307,6 @@ public class DatabaseConnection {
         }
     }
 
-
-//    public static boolean deleteClient(int clientId) {
-//        String query = "DELETE FROM \"Client\" WHERE id = ?";
-//        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
-//            pstmt.setInt(1, clientId); // Set client ID for deletion
-//
-//            pstmt.executeUpdate();
-//            return true;
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//            return false;
-//        }
-//    }
-
     public static ArrayList<Guardian> getGuardians() {
         ArrayList<Guardian> guardians = new ArrayList<>();
         String query = "SELECT * FROM \"Guardian\"";
