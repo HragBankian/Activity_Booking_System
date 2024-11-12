@@ -270,17 +270,56 @@ public class DatabaseConnection {
     }
 
     public static boolean deleteClient(int clientId) {
-        String query = "DELETE FROM \"Client\" WHERE id = ?";
-        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setInt(1, clientId); // Set client ID for deletion
+        String findOfferingsQuery = "SELECT offering_id FROM \"ClientBooking\" WHERE client_id = ?";
+        String decrementStudentsQuery = "UPDATE \"Offering\" SET num_students = num_students - 1 WHERE id = ?";
+        String deleteClientQuery = "DELETE FROM \"Client\" WHERE id = ?";
 
-            pstmt.executeUpdate();
+        try (Connection conn = connect()) {
+            conn.setAutoCommit(false);  // Begin transaction
+
+            // Step 1: Find all offering IDs associated with this client
+            try (PreparedStatement findOfferingsStmt = conn.prepareStatement(findOfferingsQuery)) {
+                findOfferingsStmt.setInt(1, clientId);
+                ResultSet rs = findOfferingsStmt.executeQuery();
+
+                // Step 2: Decrement num_students for each associated offering
+                try (PreparedStatement decrementStmt = conn.prepareStatement(decrementStudentsQuery)) {
+                    while (rs.next()) {
+                        int offeringId = rs.getInt("offering_id");
+                        decrementStmt.setInt(1, offeringId);
+                        decrementStmt.executeUpdate();
+                    }
+                }
+            }
+
+            // Step 3: Delete the client from the Client table
+            try (PreparedStatement deleteClientStmt = conn.prepareStatement(deleteClientQuery)) {
+                deleteClientStmt.setInt(1, clientId);
+                deleteClientStmt.executeUpdate();
+            }
+
+            conn.commit();  // Commit the transaction
             return true;
+
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
+
+
+//    public static boolean deleteClient(int clientId) {
+//        String query = "DELETE FROM \"Client\" WHERE id = ?";
+//        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+//            pstmt.setInt(1, clientId); // Set client ID for deletion
+//
+//            pstmt.executeUpdate();
+//            return true;
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//            return false;
+//        }
+//    }
 
     public static ArrayList<Guardian> getGuardians() {
         ArrayList<Guardian> guardians = new ArrayList<>();
@@ -333,16 +372,44 @@ public class DatabaseConnection {
     }
 
     public static boolean deleteMinor(int minorId) {
-        String query = "DELETE FROM \"Minor\" WHERE id = ?";
-        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setInt(1, minorId); // Set minor ID for deletion
-            pstmt.executeUpdate();
+        String findOfferingsQuery = "SELECT offering_id FROM \"MinorBooking\" WHERE minor_id = ?";
+        String decrementStudentsQuery = "UPDATE \"Offering\" SET num_students = num_students - 1 WHERE id = ?";
+        String deleteMinorQuery = "DELETE FROM \"Minor\" WHERE id = ?";
+
+        try (Connection conn = connect()) {
+            conn.setAutoCommit(false);  // Begin transaction
+
+            // Step 1: Find all offering IDs associated with this minor
+            try (PreparedStatement findOfferingsStmt = conn.prepareStatement(findOfferingsQuery)) {
+                findOfferingsStmt.setInt(1, minorId);
+                ResultSet rs = findOfferingsStmt.executeQuery();
+
+                // Step 2: Decrement num_students for each associated offering
+                try (PreparedStatement decrementStmt = conn.prepareStatement(decrementStudentsQuery)) {
+                    while (rs.next()) {
+                        int offeringId = rs.getInt("offering_id");
+                        decrementStmt.setInt(1, offeringId);
+                        decrementStmt.executeUpdate();
+                    }
+                }
+            }
+
+            // Step 3: Delete the minor from Minor table
+            try (PreparedStatement deleteMinorStmt = conn.prepareStatement(deleteMinorQuery)) {
+                deleteMinorStmt.setInt(1, minorId);
+                deleteMinorStmt.executeUpdate();
+            }
+
+            conn.commit();  // Commit the transaction
             return true;
+
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
+
+
 
     public static ArrayList<Instructor> getInstructors() {
         ArrayList<Instructor> instructors = new ArrayList<>();
@@ -724,6 +791,237 @@ public class DatabaseConnection {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public static ArrayList<String> getMinorsForGuardian(int guardianId) {
+        ArrayList<String> minors = new ArrayList<>();
+        String query = "SELECT full_name FROM \"Minor\" WHERE guardian_id = ?";
+
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, guardianId);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                minors.add(rs.getString("full_name"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return minors;
+    }
+
+    public static ArrayList<Integer> getMinorIdsForGuardian(int guardianId) {
+        ArrayList<Integer> minors = new ArrayList<>();
+        String query = "SELECT id FROM \"Minor\" WHERE guardian_id = ?";
+
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, guardianId);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                minors.add(rs.getInt("id"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return minors;
+    }
+
+    public static ArrayList<Offering> getAvailableOfferingsForGuardian() {
+        ArrayList<Offering> availableOfferings = new ArrayList<>();
+        String query = "SELECT * FROM \"Offering\" WHERE instructor_id IS NOT NULL AND num_students < capacity";
+
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    int id = rs.getInt("id");
+                    String title = rs.getString("title");
+                    String organization = rs.getString("organization");
+                    String city = rs.getString("city");
+                    String time = rs.getString("time");
+                    int capacity = rs.getInt("capacity");
+                    int numStudents = rs.getInt("num_students");
+
+                    Offering offering = new Offering(id, title, organization, city, time, capacity);
+                    offering.setNumStudents(numStudents);  // Set numStudents using setter
+                    availableOfferings.add(offering);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return availableOfferings;
+    }
+
+    public static boolean bookOfferingForMinor(int guardianId, String minorFullName, int offeringId) {
+        // Step 1: Find the minor_id using guardian_id and minor full_name
+        int minorId = -1;
+        String getMinorIdQuery = "SELECT id FROM \"Minor\" WHERE guardian_id = ? AND full_name = ?";
+
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(getMinorIdQuery)) {
+            pstmt.setInt(1, guardianId);
+            pstmt.setString(2, minorFullName);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    minorId = rs.getInt("id");  // Get minor's id
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;  // Error while fetching minor id
+        }
+
+        if (minorId == -1) {
+            return false;  // Minor not found
+        }
+
+        if (minorBookingExists(offeringId, minorId)){
+            System.out.println("The offering-minor pair already exists.");
+            return false;
+        }
+
+        // Step 2: Insert the booking into the MinorBooking table
+        String insertBookingQuery = "INSERT INTO \"MinorBooking\" (offering_id, minor_id) VALUES (?, ?)";
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(insertBookingQuery)) {
+            pstmt.setInt(1, offeringId);
+            pstmt.setInt(2, minorId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;  // Error while inserting booking
+        }
+
+        // Step 3: Increment num_students in the Offering table
+        String updateOfferingQuery = "UPDATE \"Offering\" SET num_students = num_students + 1 WHERE id = ?";
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(updateOfferingQuery)) {
+            pstmt.setInt(1, offeringId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;  // Error while updating offering
+        }
+
+        return true;  // Successfully booked the offering for the minor
+    }
+
+    private static boolean minorBookingExists(int offeringId, int minorId) {
+        String query = "SELECT COUNT(*) FROM \"MinorBooking\" WHERE offering_id = ? AND minor_id = ?";
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, offeringId);
+            pstmt.setInt(2, minorId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next() && rs.getInt(1) > 0) {
+                    // Booking already exists
+                    return true;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static String getMinorFullName(int minorId) {
+        String query = "SELECT full_name FROM \"Minor\" WHERE id = ?";
+        String fullName = null;
+
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, minorId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    fullName = rs.getString("full_name");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return fullName;
+    }
+
+    public static ArrayList<MinorBooking> getMinorBookingsForGuardian(int minorId) {
+        ArrayList<MinorBooking> minorBookings = new ArrayList<>();
+        String query = "SELECT * FROM \"MinorBooking\" WHERE minor_id = ?";
+
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, minorId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    int bookingId = rs.getInt("id");
+                    int offeringId = rs.getInt("offering_id");
+
+                    MinorBooking booking = new MinorBooking(offeringId, minorId);
+                    booking.setId(bookingId);
+                    minorBookings.add(booking);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return minorBookings;
+    }
+
+    public static boolean cancelMinorBooking(int bookingId, int offeringId) {
+        String deleteQuery = "DELETE FROM \"MinorBooking\" WHERE id = ?";
+        String updateQuery = "UPDATE \"Offering\" SET num_students = num_students - 1 WHERE id = ?";
+
+        try (Connection conn = connect();
+             PreparedStatement deleteStmt = conn.prepareStatement(deleteQuery);
+             PreparedStatement updateStmt = conn.prepareStatement(updateQuery)) {
+
+            // Update the num_students count in the Offering table
+            updateStmt.setInt(1, offeringId);
+            updateStmt.executeUpdate();
+
+            // Delete the booking from the MinorBooking table
+            deleteStmt.setInt(1, bookingId);
+            int rowsAffected = deleteStmt.executeUpdate();
+
+            // Check if the deletion was successful
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static ArrayList<Minor> getMinorsObjectForGuardian(int guardianId) {
+        ArrayList<Minor> minors = new ArrayList<>();
+        String query = "SELECT id, full_name FROM \"Minor\" WHERE guardian_id = ?";
+
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, guardianId);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String fullName = rs.getString("full_name");
+                minors.add(new Minor(id, fullName, guardianId));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return minors;
+    }
+
+    public static boolean addMinor(String fullName, int guardianId) {
+        String query = "INSERT INTO \"Minor\" (full_name, guardian_id) VALUES (?, ?)";
+
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, fullName);
+            pstmt.setInt(2, guardianId);
+
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;  // Returns true if the insert was successful
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public static void main(String[] args) {

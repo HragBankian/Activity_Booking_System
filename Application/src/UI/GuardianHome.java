@@ -19,41 +19,40 @@ public class GuardianHome extends JFrame {
         setSize(400, 300);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new GridLayout(3, 1, 10, 10));
+        setLayout(new GridLayout(4, 1, 10, 10));
 
         welcomeLabel = new JLabel("Welcome " + name);
         add(welcomeLabel, BorderLayout.NORTH);
 
-        JButton btnmakeBooking = new JButton("Make a Booking");
+        JButton btnMakeBooking = new JButton("Make a Booking");
         JButton btnManageBookings = new JButton("Manage My Bookings");
+        JButton btnManageMinors = new JButton("Manage Minors");
 
         // Add action listeners to buttons
-        btnmakeBooking.addActionListener(new ActionListener() {
+        btnMakeBooking.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                openMakeBookingPage();
+                new GuardianMakeBooking(guardianId).setVisible(true);
             }
         });
 
         btnManageBookings.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                openManageBookingsPage();
+                new GuardianManageBooking(guardianId).setVisible(true);
             }
         });
 
-        add(btnmakeBooking);
+        btnManageMinors.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new ManageMinors(guardianId).setVisible(true);
+            }
+        });
+
+        add(btnMakeBooking);
         add(btnManageBookings);
-    }
-
-    private void openMakeBookingPage() {
-        // Code to open Make Booking page
-        JOptionPane.showMessageDialog(this, "Navigating to Make a Booking page...");
-    }
-
-    private void openManageBookingsPage() {
-        // Code to open Manage Bookings page
-        JOptionPane.showMessageDialog(this, "Navigating to Manage Bookings page...");
+        add(btnManageMinors);
     }
 
     public static void main(String[] args) {
