@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.sql.*;
 import java.util.ArrayList;
+import javax.swing.JOptionPane;
 
 
 public class DatabaseConnection {
@@ -158,17 +159,32 @@ public class DatabaseConnection {
     }
 
     public static boolean createOffering(Offering offering) {
-        String query = "INSERT INTO \"Offering\" (title, organization, city, time, capacity, num_students, instructor_id) VALUES (?::specialty_enum, ?, ?::city_enum, ?, ?, ?, ?)";
-        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setString(1, offering.getTitle());
-            pstmt.setString(2, offering.getOrganization());
-            pstmt.setString(3, offering.getCity());
-            pstmt.setString(4, offering.getTime());
-            pstmt.setInt(5, offering.getCapacity());
-            pstmt.setInt(6, offering.getNumStudents());
-            pstmt.setObject(7, offering.getInstructorId(), Types.INTEGER);  // Handle null values
+        String checkQuery = "SELECT COUNT(*) FROM \"Offering\" WHERE city = ?::city_enum AND time = ?";
+        String insertQuery = "INSERT INTO \"Offering\" (title, organization, city, time, capacity, num_students, instructor_id) VALUES (?::specialty_enum, ?, ?::city_enum, ?, ?, ?, ?)";
 
-            pstmt.executeUpdate();
+        try (Connection conn = connect();
+             PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
+             PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
+
+            // Check if an offering with the same city and time already exists
+            checkStmt.setString(1, offering.getCity());
+            checkStmt.setString(2, offering.getTime());
+            ResultSet rs = checkStmt.executeQuery();
+            if (rs.next() && rs.getInt(1) > 0) {
+                JOptionPane.showMessageDialog(null, "An offering with the same Time and City already exists.", "Error", JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+
+            // Proceed with insertion if no conflict
+            insertStmt.setString(1, offering.getTitle());
+            insertStmt.setString(2, offering.getOrganization());
+            insertStmt.setString(3, offering.getCity());
+            insertStmt.setString(4, offering.getTime());
+            insertStmt.setInt(5, offering.getCapacity());
+            insertStmt.setInt(6, offering.getNumStudents());
+            insertStmt.setObject(7, offering.getInstructorId(), Types.INTEGER);  // Handle null values
+
+            insertStmt.executeUpdate();
             return true;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -202,30 +218,60 @@ public class DatabaseConnection {
     }
 
     public static boolean updateOffering(int offeringId, Offering offering) {
-        String query = "UPDATE \"Offering\" SET title = ?::specialty_enum, organization = ?, city = ?::city_enum, time = ?, capacity = ?, instructor_id = ? WHERE id = ?";
-        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setString(1, offering.getTitle());
-            pstmt.setString(2, offering.getOrganization());
-            pstmt.setString(3, offering.getCity()); // Set city using the enum directly
-            pstmt.setString(4, offering.getTime());
-            pstmt.setInt(5, offering.getCapacity());
+        // Check if there's another offering with the same city and time, excluding the current offering
+        String checkQuery = "SELECT COUNT(*) FROM \"Offering\" WHERE city = ?::city_enum AND time = ? AND id <> ?";
+        // Update query
+        String updateQuery = "UPDATE \"Offering\" SET title = ?::specialty_enum, organization = ?, city = ?::city_enum, time = ?, capacity = ?, instructor_id = ? WHERE id = ?";
 
-            // Handle instructor_id as Integer, including possible null value
-            if (offering.getInstructorId() != null) {
-                pstmt.setInt(6, offering.getInstructorId());
-            } else {
-                pstmt.setNull(6, Types.INTEGER);  // Set null for instructor_id if it's null
+        try (Connection conn = connect();
+             PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
+             PreparedStatement updateStmt = conn.prepareStatement(updateQuery)) {
+
+            // Trim whitespace from city and time before passing them to the database
+            String city = offering.getCity().trim();
+            String time = offering.getTime().trim();
+
+            // Check if an offering with the same city and time already exists, excluding the current offering
+            checkStmt.setString(1, city);
+            checkStmt.setString(2, time);
+            checkStmt.setInt(3, offeringId);
+
+            try (ResultSet rs = checkStmt.executeQuery()) {
+                if (rs.next() && rs.getInt(1) > 0) {
+                    JOptionPane.showMessageDialog(null, "An offering with the same Time and City already exists.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return false; // If a conflict is found, return false
+                }
             }
 
-            pstmt.setInt(7, offeringId); // Set offering ID for where clause
+            // Proceed with update if no conflict
+            updateStmt.setString(1, offering.getTitle());
+            updateStmt.setString(2, offering.getOrganization());
+            updateStmt.setString(3, city);
+            updateStmt.setString(4, time);
+            updateStmt.setInt(5, offering.getCapacity());
 
-            pstmt.executeUpdate();
-            int test = offering.getCapacity();
-            System.out.println(test);
-            return true;
+            // Handle instructor_id
+            if (offering.getInstructorId() != null) {
+                updateStmt.setInt(6, offering.getInstructorId());
+            } else {
+                updateStmt.setNull(6, Types.INTEGER);
+            }
+
+            // Set the offeringId for the WHERE clause
+            updateStmt.setInt(7, offeringId);
+
+            // Execute update statement
+            int rowsUpdated = updateStmt.executeUpdate();
+            if (rowsUpdated == 0) {
+                JOptionPane.showMessageDialog(null, "Offering update failed. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+                return false; // If no rows were updated, return false
+            }
+
+            return true; // Return true if the update is successful
+
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return false; // Return false if an SQL exception occurs
         }
     }
 
@@ -370,27 +416,34 @@ public class DatabaseConnection {
     public static boolean deleteInstructor(int instructorId) {
         // Query to get all offerings by the instructor
         String getOfferingsQuery = "SELECT id FROM \"Offering\" WHERE instructor_id = ?";
-        // Query to delete bookings associated with these offerings
-        String deleteBookingsQuery = "DELETE FROM \"ClientBooking\" WHERE offering_id = ?";
+        // Query to delete bookings associated with these offerings in ClientBooking
+        String deleteClientBookingsQuery = "DELETE FROM \"ClientBooking\" WHERE offering_id = ?";
+        // Query to delete bookings associated with these offerings in MinorBooking
+        String deleteMinorBookingsQuery = "DELETE FROM \"MinorBooking\" WHERE offering_id = ?";
         // Query to delete the instructor
         String deleteInstructorQuery = "DELETE FROM \"Instructor\" WHERE id = ?";
 
         try (Connection conn = connect();
              PreparedStatement getOfferingsStmt = conn.prepareStatement(getOfferingsQuery);
-             PreparedStatement deleteBookingsStmt = conn.prepareStatement(deleteBookingsQuery);
+             PreparedStatement deleteClientBookingsStmt = conn.prepareStatement(deleteClientBookingsQuery);
+             PreparedStatement deleteMinorBookingsStmt = conn.prepareStatement(deleteMinorBookingsQuery);
              PreparedStatement deleteInstructorStmt = conn.prepareStatement(deleteInstructorQuery)) {
 
             // Step 1: Get all offerings associated with the instructor
             getOfferingsStmt.setInt(1, instructorId);
             ResultSet rs = getOfferingsStmt.executeQuery();
 
-            // Step 2: For each offering, delete the associated bookings
+            // Step 2: For each offering, delete the associated bookings in both ClientBooking and MinorBooking
             while (rs.next()) {
                 int offeringId = rs.getInt("id");
 
-                // Delete all bookings for this offering
-                deleteBookingsStmt.setInt(1, offeringId);
-                deleteBookingsStmt.executeUpdate();
+                // Delete all bookings for this offering in ClientBooking
+                deleteClientBookingsStmt.setInt(1, offeringId);
+                deleteClientBookingsStmt.executeUpdate();
+
+                // Delete all bookings for this offering in MinorBooking
+                deleteMinorBookingsStmt.setInt(1, offeringId);
+                deleteMinorBookingsStmt.executeUpdate();
             }
 
             // Step 3: Finally, delete the instructor
@@ -495,20 +548,37 @@ public class DatabaseConnection {
     }
 
     public static boolean bookOfferingForClient(int offeringId, int clientId) {
+        String checkClientBookingQuery = "SELECT o.time FROM \"ClientBooking\" cb " +
+                "JOIN \"Offering\" o ON cb.offering_id = o.id " +
+                "WHERE cb.client_id = ? AND o.time = (SELECT time FROM \"Offering\" WHERE id = ?)";
         String clientBookingQuery = "INSERT INTO \"ClientBooking\" (offering_id, client_id) VALUES (?, ?)";
         String updateOfferingQuery = "UPDATE \"Offering\" SET num_students = num_students + 1 WHERE id = ? AND num_students < capacity";
 
         try (Connection conn = connect()) {
             conn.setAutoCommit(false);  // Start transaction
 
-            // Insert client booking
+            // Step 1: Check if the client already has a booking at the same time
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkClientBookingQuery)) {
+                checkStmt.setInt(1, clientId);
+                checkStmt.setInt(2, offeringId);
+                ResultSet rs = checkStmt.executeQuery();
+
+                if (rs.next()) {
+                    // Client already has a booking at the same time
+                    JOptionPane.showMessageDialog(null, "You already have a booking at this time.", "Error", JOptionPane.ERROR_MESSAGE);
+                    conn.rollback();  // Rollback transaction
+                    return false;
+                }
+            }
+
+            // Step 2: Insert the client booking
             try (PreparedStatement pstmt = conn.prepareStatement(clientBookingQuery)) {
                 pstmt.setInt(1, offeringId);
                 pstmt.setInt(2, clientId);
                 pstmt.executeUpdate();
             }
 
-            // Update the offering's num_students
+            // Step 3: Update the offering's num_students
             try (PreparedStatement pstmt = conn.prepareStatement(updateOfferingQuery)) {
                 pstmt.setInt(1, offeringId);
                 int rowsUpdated = pstmt.executeUpdate();
@@ -714,12 +784,34 @@ public class DatabaseConnection {
     }
 
     public static boolean cancelLesson(int offeringId) {
-        String query = "UPDATE \"Offering\" SET instructor_id = NULL WHERE id = ?";
+        // Query to set instructor_id to NULL for the offering
+        String cancelLessonQuery = "UPDATE \"Offering\" SET instructor_id = NULL WHERE id = ?";
+        // Query to delete bookings associated with this offering from ClientBooking table
+        String deleteClientBookingsQuery = "DELETE FROM \"ClientBooking\" WHERE offering_id = ?";
+        // Query to delete bookings associated with this offering from MinorBooking table
+        String deleteMinorBookingsQuery = "DELETE FROM \"MinorBooking\" WHERE offering_id = ?";
 
-        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setInt(1, offeringId);
-            int rowsUpdated = pstmt.executeUpdate();
-            return rowsUpdated > 0;
+        try (Connection conn = connect();
+             PreparedStatement cancelLessonStmt = conn.prepareStatement(cancelLessonQuery);
+             PreparedStatement deleteClientBookingsStmt = conn.prepareStatement(deleteClientBookingsQuery);
+             PreparedStatement deleteMinorBookingsStmt = conn.prepareStatement(deleteMinorBookingsQuery)) {
+
+            // Step 1: Set instructor_id to NULL, indicating the lesson is canceled
+            cancelLessonStmt.setInt(1, offeringId);
+            int rowsUpdated = cancelLessonStmt.executeUpdate();
+
+            if (rowsUpdated > 0) {
+                // Step 2: Delete all bookings associated with this offering in ClientBooking
+                deleteClientBookingsStmt.setInt(1, offeringId);
+                deleteClientBookingsStmt.executeUpdate();
+
+                // Step 3: Delete all bookings associated with this offering in MinorBooking
+                deleteMinorBookingsStmt.setInt(1, offeringId);
+                deleteMinorBookingsStmt.executeUpdate();
+
+                return true;
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }

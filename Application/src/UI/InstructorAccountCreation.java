@@ -90,7 +90,6 @@ public class InstructorAccountCreation extends JFrame {
         dobField = new JTextField();
         centerPanel.add(dobField);
 
-        centerPanel.add(new JLabel("City Availability:"));
         JButton cityButton = new JButton("Select Cities");
         cityButton.addActionListener(e -> showCitySelectionDialog());
         centerPanel.add(cityButton);
@@ -100,7 +99,6 @@ public class InstructorAccountCreation extends JFrame {
         citySelectionArea.setPreferredSize(new Dimension(100, 50));
         centerPanel.add(citySelectionArea);
 
-        centerPanel.add(new JLabel("Specialty:"));
         JButton specialtyButton = new JButton("Select Specialty");
         specialtyButton.addActionListener(e -> showSpecialtySelectionDialog());
         centerPanel.add(specialtyButton);
