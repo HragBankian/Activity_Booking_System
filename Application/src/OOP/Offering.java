@@ -16,9 +16,10 @@ public class Offering {
     private int capacity;
     private int numStudents;
     private Integer instructorId; // Using Integer because instructorId can be null
+    private String location;
 
     // Constructor
-    public Offering(int id, String title, String organization, String city, String time, int capacity) {
+    public Offering(int id, String title, String organization, String city, String time, int capacity, String location) {
         this.id = id;
         this.title = title;
         this.organization = organization;
@@ -27,6 +28,7 @@ public class Offering {
         this.capacity = capacity;
         this.numStudents = 0;
         this.instructorId = null;
+        this.location = location;
     }
 
     public static Offering getOfferingById(int offeringId) {
@@ -43,8 +45,9 @@ public class Offering {
                     String time = rs.getString("time");
                     int capacity = rs.getInt("capacity");
                     int numStudents = rs.getInt("num_students");
+                    String location = rs.getString("location");
 
-                    offering = new Offering(offeringId, title, organization, city, time, capacity);
+                    offering = new Offering(offeringId, title, organization, city, time, capacity, location);
                     offering.setNumStudents(numStudents);
                 }
             }
@@ -70,4 +73,6 @@ public class Offering {
     public void setNumStudents(int numStudents) { this.numStudents = numStudents; }
     public Integer getInstructorId() { return instructorId; }
     public void setInstructorId(Integer instructorId) { this.instructorId = instructorId; }
+    public String getLocation() { return location; };
+    public void setLocation(String location) { this.location = location; }
 }

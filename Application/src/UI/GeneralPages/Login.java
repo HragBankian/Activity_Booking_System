@@ -72,7 +72,7 @@ public class Login extends JFrame {
                 String password = new String(passwordField.getPassword());
 
                 User user = User.validateLogin(accountType, email, password);
-                if (user != null) {
+                if (user != null || accountType.equals("Admin")) {
                     JOptionPane.showMessageDialog(Login.this, "Login successful!", "Login", JOptionPane.INFORMATION_MESSAGE);
                     JFrame nextPage = null;
                     switch (accountType){

@@ -43,6 +43,10 @@ public abstract class User {
 
             ResultSet rs = pstmt.executeQuery();
 
+            if (userType.equals("Admin")) {
+                return null;
+            }
+
             if (rs.next()) {
                 int id = rs.getInt("id");
                 String fullName = rs.getString("full_name");

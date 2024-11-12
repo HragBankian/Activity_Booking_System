@@ -43,8 +43,9 @@ public class Client extends User {
                     String time = rs.getString("time");
                     int capacity = rs.getInt("capacity");
                     int numStudents = rs.getInt("num_students");
+                    String location = rs.getString("location");
 
-                    Offering offering = new Offering(id, title, organization, city, time, capacity);
+                    Offering offering = new Offering(id, title, organization, city, time, capacity, location);
                     offering.setNumStudents(numStudents);  // Set numStudents using setter
                     availableOfferings.add(offering);
                 }

@@ -1,5 +1,6 @@
 package OOP.Users;
 
+import javax.swing.*;
 import java.sql.*;
 import java.util.ArrayList;
 
@@ -55,18 +56,36 @@ public class Instructor extends User {
     }
 
     public boolean selectOffering(int offeringId) {
-        String query = "UPDATE \"Offering\" SET instructor_id = ? WHERE id = ?";
+        String checkQuery = "SELECT COUNT(*) FROM \"Offering\" WHERE instructor_id = ? AND time = (SELECT time FROM \"Offering\" WHERE id = ?)";
+        String updateQuery = "UPDATE \"Offering\" SET instructor_id = ? WHERE id = ?";
 
-        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setInt(1, this.id);
-            pstmt.setInt(2, offeringId);
-            int rowsUpdated = pstmt.executeUpdate();
+        try (Connection conn = connect();
+             PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
+             PreparedStatement updateStmt = conn.prepareStatement(updateQuery)) {
+
+            // Step 1: Check if the instructor already has an offering at the same time
+            checkStmt.setInt(1, this.id);
+            checkStmt.setInt(2, offeringId);
+
+            try (ResultSet rs = checkStmt.executeQuery()) {
+                if (rs.next() && rs.getInt(1) > 0) {
+                    JOptionPane.showMessageDialog(null, "You already have an offering at this day/time.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return false; // Conflict found, return false
+                }
+            }
+
+            // Step 2: Proceed to assign the instructor if no conflict
+            updateStmt.setInt(1, this.id);
+            updateStmt.setInt(2, offeringId);
+            int rowsUpdated = updateStmt.executeUpdate();
             return rowsUpdated > 0;  // Return true if the offering was updated
+
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
+
 
     public static boolean cancelLesson(int offeringId) {
         // Query to set instructor_id to NULL for the offering
