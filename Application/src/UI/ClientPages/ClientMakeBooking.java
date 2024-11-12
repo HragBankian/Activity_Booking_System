@@ -25,8 +25,8 @@ public class ClientMakeBooking extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // Initialize components
-        offeringsTableModel = new DefaultTableModel(new Object[]{"ID", "Title", "Organization", "City", "Time", "Capacity", "Num Students"}, 0);
+        // Initialize components with the new Location column
+        offeringsTableModel = new DefaultTableModel(new Object[]{"ID", "Title", "Organization", "City", "Time", "Capacity", "Num Students", "Location"}, 0);
         offeringsTable = new JTable(offeringsTableModel);
         bookButton = new JButton("Book Offering");
 
@@ -67,9 +67,10 @@ public class ClientMakeBooking extends JFrame {
             String time = offering.getTime();
             int capacity = offering.getCapacity();
             int numStudents = offering.getNumStudents();
-            int offeringId = offering.getId(); // Get the offering id
+            String location = offering.getLocation();  // Get the location
+            int offeringId = offering.getId();  // Get the offering id
 
-            offeringsTableModel.addRow(new Object[]{offeringId, title, organization, city, time, capacity, numStudents});
+            offeringsTableModel.addRow(new Object[]{offeringId, title, organization, city, time, capacity, numStudents, location});
         }
     }
 
@@ -87,7 +88,7 @@ public class ClientMakeBooking extends JFrame {
         boolean success = client.bookOffering(offeringId);
         if (success) {
             JOptionPane.showMessageDialog(this, "Booking successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
-            client.getAvailableOfferings();  // Reload available offerings
+            loadAvailableOfferings();
         } else {
             JOptionPane.showMessageDialog(this, "Error booking the offering.", "Error", JOptionPane.ERROR_MESSAGE);
         }

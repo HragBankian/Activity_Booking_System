@@ -26,8 +26,8 @@ public class ClientManageBooking extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // Initialize components
-        clientBookingsTableModel = new DefaultTableModel(new Object[]{"Booking ID", "Title", "Organization", "City", "Time", "Capacity", "Num Students"}, 0);
+        // Initialize components with the new Location column
+        clientBookingsTableModel = new DefaultTableModel(new Object[]{"Booking ID", "Title", "Organization", "City", "Time", "Capacity", "Num Students", "Location"}, 0);
         clientBookingsTable = new JTable(clientBookingsTableModel);
         cancelBookingButton = new JButton("Cancel Booking");
 
@@ -71,8 +71,9 @@ public class ClientManageBooking extends JFrame {
             String time = offering.getTime();
             int capacity = offering.getCapacity();
             int numStudents = offering.getNumStudents();
+            String location = offering.getLocation();  // Get the location
 
-            clientBookingsTableModel.addRow(new Object[]{booking.getId(), title, organization, city, time, capacity, numStudents});
+            clientBookingsTableModel.addRow(new Object[]{booking.getId(), title, organization, city, time, capacity, numStudents, location});
         }
     }
 
@@ -98,6 +99,6 @@ public class ClientManageBooking extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new ClientManageBooking(client).setVisible(true)); // Example with clientId = 1
+        SwingUtilities.invokeLater(() -> new ClientManageBooking(client).setVisible(true));
     }
 }

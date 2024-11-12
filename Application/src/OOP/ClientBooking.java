@@ -15,23 +15,18 @@ public class ClientBooking {
     public int getId() {
         return id;
     }
-
     public void setId(int id) {
         this.id = id;
     }
-
     public int getOfferingId() {
         return offeringId;
     }
-
     public void setOfferingId(int offeringId) {
         this.offeringId = offeringId;
     }
-
     public int getClientId() {
         return clientId;
     }
-
     public void setClientId(int clientId) {
         this.clientId = clientId;
     }

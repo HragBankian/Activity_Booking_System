@@ -33,19 +33,20 @@ public class Admin {
 
     //Create Offering
     public static boolean createOffering(Offering offering) {
-        String checkQuery = "SELECT COUNT(*) FROM \"Offering\" WHERE city = ?::city_enum AND time = ?";
-        String insertQuery = "INSERT INTO \"Offering\" (title, organization, city, time, capacity, num_students, instructor_id) VALUES (?::specialty_enum, ?, ?::city_enum, ?, ?, ?, ?)";
+        String checkQuery = "SELECT COUNT(*) FROM \"Offering\" WHERE city = ?::city_enum AND time = ? AND location = ?";
+        String insertQuery = "INSERT INTO \"Offering\" (title, organization, city, time, capacity, num_students, instructor_id, location) VALUES (?::specialty_enum, ?, ?::city_enum, ?, ?, ?, ?, ?)";
 
         try (Connection conn = connect();
              PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
              PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
 
-            // Check if an offering with the same city and time already exists
+            // Check if an offering with the same city, time, and location already exists
             checkStmt.setString(1, offering.getCity());
             checkStmt.setString(2, offering.getTime());
+            checkStmt.setString(3, offering.getLocation());
             ResultSet rs = checkStmt.executeQuery();
             if (rs.next() && rs.getInt(1) > 0) {
-                JOptionPane.showMessageDialog(null, "An offering with the same Time and City already exists.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "An offering with the same Day/Time and City/Location already exists.", "Error", JOptionPane.ERROR_MESSAGE);
                 return false;
             }
 
@@ -57,6 +58,7 @@ public class Admin {
             insertStmt.setInt(5, offering.getCapacity());
             insertStmt.setInt(6, offering.getNumStudents());
             insertStmt.setObject(7, offering.getInstructorId(), Types.INTEGER);  // Handle null values
+            insertStmt.setString(8, offering.getLocation());
 
             insertStmt.executeUpdate();
             return true;
@@ -65,6 +67,7 @@ public class Admin {
             return false;
         }
     }
+
 
     //Read Offerings
     public static ArrayList<Offering> getOfferings() {
@@ -80,8 +83,9 @@ public class Admin {
                 int capacity = rs.getInt("capacity");
                 int numStudents = rs.getInt("num_students");
                 Integer instructorId = (Integer) rs.getObject("instructor_id");
+                String location = rs.getString("location");
 
-                Offering offering = new Offering(id, title, organization, city, time, capacity);
+                Offering offering = new Offering(id, title, organization, city, time, capacity, location);
                 offering.setNumStudents(numStudents);
                 offering.setInstructorId(instructorId);
                 offerings.add(offering);
@@ -94,27 +98,29 @@ public class Admin {
 
     //Update Offerings
     public static boolean updateOffering(int offeringId, Offering offering) {
-        // Check if there's another offering with the same city and time, excluding the current offering
-        String checkQuery = "SELECT COUNT(*) FROM \"Offering\" WHERE city = ?::city_enum AND time = ? AND id <> ?";
+        // Check if there's another offering with the same city, time, and location, excluding the current offering
+        String checkQuery = "SELECT COUNT(*) FROM \"Offering\" WHERE city = ?::city_enum AND time = ? AND location = ? AND id <> ?";
         // Update query
-        String updateQuery = "UPDATE \"Offering\" SET title = ?::specialty_enum, organization = ?, city = ?::city_enum, time = ?, capacity = ?, instructor_id = ? WHERE id = ?";
+        String updateQuery = "UPDATE \"Offering\" SET title = ?::specialty_enum, organization = ?, city = ?::city_enum, time = ?, capacity = ?, instructor_id = ?, location = ? WHERE id = ?";
 
         try (Connection conn = connect();
              PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
              PreparedStatement updateStmt = conn.prepareStatement(updateQuery)) {
 
-            // Trim whitespace from city and time before passing them to the database
+            // Trim whitespace from city, time, and location before passing them to the database
             String city = offering.getCity().trim();
             String time = offering.getTime().trim();
+            String location = offering.getLocation().trim();
 
-            // Check if an offering with the same city and time already exists, excluding the current offering
+            // Check if an offering with the same city, time, and location already exists, excluding the current offering
             checkStmt.setString(1, city);
             checkStmt.setString(2, time);
-            checkStmt.setInt(3, offeringId);
+            checkStmt.setString(3, location);
+            checkStmt.setInt(4, offeringId);
 
             try (ResultSet rs = checkStmt.executeQuery()) {
                 if (rs.next() && rs.getInt(1) > 0) {
-                    JOptionPane.showMessageDialog(null, "An offering with the same Time and City already exists.", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "An offering with the same Day/Time and City/Location already exists.", "Error", JOptionPane.ERROR_MESSAGE);
                     return false; // If a conflict is found, return false
                 }
             }
@@ -133,8 +139,10 @@ public class Admin {
                 updateStmt.setNull(6, Types.INTEGER);
             }
 
+            updateStmt.setString(7, location);
+
             // Set the offeringId for the WHERE clause
-            updateStmt.setInt(7, offeringId);
+            updateStmt.setInt(8, offeringId);
 
             // Execute update statement
             int rowsUpdated = updateStmt.executeUpdate();
@@ -150,6 +158,7 @@ public class Admin {
             return false; // Return false if an SQL exception occurs
         }
     }
+
 
     //Delete Offering
     public static boolean deleteOffering(int offeringId) {

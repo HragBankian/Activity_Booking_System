@@ -4,6 +4,7 @@ import OOP.Minor;
 import OOP.MinorBooking;
 import OOP.Offering;
 
+import javax.swing.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -39,8 +40,9 @@ public class Guardian extends User {
                     String time = rs.getString("time");
                     int capacity = rs.getInt("capacity");
                     int numStudents = rs.getInt("num_students");
+                    String location = rs.getString("location");
 
-                    Offering offering = new Offering(id, title, organization, city, time, capacity);
+                    Offering offering = new Offering(id, title, organization, city, time, capacity, location);
                     offering.setNumStudents(numStudents);  // Set numStudents using setter
                     availableOfferings.add(offering);
                 }
@@ -148,12 +150,27 @@ public class Guardian extends User {
             return false;  // Minor not found
         }
 
-        if (MinorBooking.minorBookingExists(offeringId, minorId)){
-            System.out.println("The offering-minor pair already exists.");
-            return false;
+        // Step 2: Check if the minor already has a booking at the same time
+        String checkMinorBookingQuery = "SELECT o.time FROM \"MinorBooking\" mb " +
+                "JOIN \"Offering\" o ON mb.offering_id = o.id " +
+                "WHERE mb.minor_id = ? AND o.time = (SELECT time FROM \"Offering\" WHERE id = ?)";
+
+        try (Connection conn = connect(); PreparedStatement checkStmt = conn.prepareStatement(checkMinorBookingQuery)) {
+            checkStmt.setInt(1, minorId);
+            checkStmt.setInt(2, offeringId);
+            ResultSet rs = checkStmt.executeQuery();
+
+            if (rs.next()) {
+                // Minor already has a booking at the same time
+                JOptionPane.showMessageDialog(null, "The minor already has a booking at this time.", "Error", JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;  // Error while checking for existing booking
         }
 
-        // Step 2: Insert the booking into the MinorBooking table
+        // Step 3: Insert the booking into the MinorBooking table
         String insertBookingQuery = "INSERT INTO \"MinorBooking\" (offering_id, minor_id) VALUES (?, ?)";
         try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(insertBookingQuery)) {
             pstmt.setInt(1, offeringId);
@@ -164,11 +181,15 @@ public class Guardian extends User {
             return false;  // Error while inserting booking
         }
 
-        // Step 3: Increment num_students in the Offering table
-        String updateOfferingQuery = "UPDATE \"Offering\" SET num_students = num_students + 1 WHERE id = ?";
+        // Step 4: Increment num_students in the Offering table
+        String updateOfferingQuery = "UPDATE \"Offering\" SET num_students = num_students + 1 WHERE id = ? AND num_students < capacity";
         try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(updateOfferingQuery)) {
             pstmt.setInt(1, offeringId);
-            pstmt.executeUpdate();
+            int rowsUpdated = pstmt.executeUpdate();
+
+            if (rowsUpdated == 0) {
+                return false;  // No update, meaning capacity is full
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             return false;  // Error while updating offering
@@ -176,6 +197,7 @@ public class Guardian extends User {
 
         return true;  // Successfully booked the offering for the minor
     }
+
 
     public ArrayList<MinorBooking> getBookingsForMinor(int minorId) {
         ArrayList<MinorBooking> minorBookings = new ArrayList<>();

@@ -25,8 +25,8 @@ public class GuardianManageBooking extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // Initialize components
-        minorBookingsTableModel = new DefaultTableModel(new Object[]{"Booking Id", "Offering Id", "Minor Name", "Title", "Organization", "City", "Time", "Capacity", "Num Students"}, 0);
+        // Initialize components with the new Location column
+        minorBookingsTableModel = new DefaultTableModel(new Object[]{"Booking Id", "Offering Id", "Minor Name", "Title", "Organization", "City", "Time", "Capacity", "Num Students", "Location"}, 0);
         minorBookingsTable = new JTable(minorBookingsTableModel);
         cancelBookingButton = new JButton("Cancel Booking");
 
@@ -79,10 +79,11 @@ public class GuardianManageBooking extends JFrame {
                 String time = offering.getTime();
                 int capacity = offering.getCapacity();
                 int numStudents = offering.getNumStudents();
+                String location = offering.getLocation();  // Retrieve location
 
-                // Add the booking details and minor full name to the table model
+                // Add the booking details, minor full name, and location to the table model
                 minorBookingsTableModel.addRow(new Object[]{
-                        booking.getId(), offeringId, minorFullName, title, organization, city, time, capacity, numStudents
+                        booking.getId(), offeringId, minorFullName, title, organization, city, time, capacity, numStudents, location
                 });
             }
         }

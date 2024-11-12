@@ -29,8 +29,8 @@ public class GuardianMakeBooking extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // Initialize components
-        offeringsTableModel = new DefaultTableModel(new Object[]{"ID", "Title", "Organization", "City", "Time", "Capacity", "Num Students"}, 0);
+        // Initialize components with the new Location column
+        offeringsTableModel = new DefaultTableModel(new Object[]{"ID", "Title", "Organization", "City", "Time", "Capacity", "Num Students", "Location"}, 0);
         offeringsTable = new JTable(offeringsTableModel);
         bookButton = new JButton("Book Offering");
 
@@ -94,7 +94,8 @@ public class GuardianMakeBooking extends JFrame {
                     offering.getCity(),
                     offering.getTime(),
                     offering.getCapacity(),
-                    offering.getNumStudents()
+                    offering.getNumStudents(),
+                    offering.getLocation()  // Add location data
             });
         }
     }
