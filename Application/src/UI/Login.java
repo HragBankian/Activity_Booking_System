@@ -73,7 +73,7 @@ public class Login extends JFrame {
                             nextPage = new ClientHome(id);
                             break;
                         case "Guardian":
-                            //nextPage = new GuardianHome();
+                            nextPage = new GuardianHome(id);
                             break;
                         case "Instructor":
                             nextPage = new InstructorHome(id);
