@@ -1,5 +1,10 @@
 package DB;
 
+import OOP.City;
+import OOP.Users.Instructor;
+import OOP.Minor;
+import OOP.Users.User;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
