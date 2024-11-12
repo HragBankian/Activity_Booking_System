@@ -52,7 +52,7 @@ public class OfferingsCRUD extends JFrame {
         panel.add(organizationField);
         panel.add(new JLabel("City:"));
         panel.add(cityField);
-        panel.add(new JLabel("Time (DayOfWeek, StartTime, EndTime):"));
+        panel.add(new JLabel("Time (DayOfWeek,StartTime,EndTime):"));
         panel.add(timeField);
         panel.add(new JLabel("Capacity:"));
         panel.add(capacityField);
