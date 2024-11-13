@@ -23,7 +23,11 @@ public class InstructorsRD extends JFrame {
         setLayout(new BorderLayout());
 
         // Initialize components
-        instructorsTableModel = new DefaultTableModel(new Object[]{"ID", "Full Name", "Email", "Phone Number", "Date of Birth", "Specialty"}, 0);
+        instructorsTableModel = new DefaultTableModel(new Object[]{"ID", "Full Name", "Email", "Phone Number", "Date of Birth", "Specialty"}, 0){
+            public boolean isCellEditable(int row, int column) {
+                return false;  // Disable editing for all cells
+            }
+        };
         instructorsTable = new JTable(instructorsTableModel);
 
         deleteInstructorButton = new JButton("Delete Instructor");

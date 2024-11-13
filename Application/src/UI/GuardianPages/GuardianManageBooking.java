@@ -26,7 +26,11 @@ public class GuardianManageBooking extends JFrame {
         setLayout(new BorderLayout());
 
         // Initialize components with the new Location column
-        minorBookingsTableModel = new DefaultTableModel(new Object[]{"Booking Id", "Offering Id", "Minor Name", "Title", "Organization", "City", "Time", "Capacity", "Num Students", "Location"}, 0);
+        minorBookingsTableModel = new DefaultTableModel(new Object[]{"Booking Id", "Offering Id", "Minor Name", "Title", "Organization", "City", "Time", "Capacity", "Num Students", "Location"}, 0){
+            public boolean isCellEditable(int row, int column) {
+                return false;  // Disable editing for all cells
+            }
+        };
         minorBookingsTable = new JTable(minorBookingsTableModel);
         cancelBookingButton = new JButton("Cancel Booking");
 

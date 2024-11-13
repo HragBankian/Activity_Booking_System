@@ -27,10 +27,18 @@ public class GuardiansMinorsRD extends JFrame {
         setLayout(new GridLayout(2, 1));  // Use GridLayout to have two tables
 
         // Initialize components
-        guardiansTableModel = new DefaultTableModel(new Object[]{"ID", "Full Name", "Email", "Phone Number", "Date of Birth"}, 0);
+        guardiansTableModel = new DefaultTableModel(new Object[]{"ID", "Full Name", "Email", "Phone Number", "Date of Birth"}, 0){
+            public boolean isCellEditable(int row, int column) {
+                return false;  // Disable editing for all cells
+            }
+        };
         guardiansTable = new JTable(guardiansTableModel);
 
-        minorsTableModel = new DefaultTableModel(new Object[]{"ID", "Full Name", "Guardian ID"}, 0);
+        minorsTableModel = new DefaultTableModel(new Object[]{"ID", "Full Name", "Guardian ID"}, 0){
+            public boolean isCellEditable(int row, int column) {
+                return false;  // Disable editing for all cells
+            }
+        };
         minorsTable = new JTable(minorsTableModel);
 
         deleteGuardianButton = new JButton("Delete Guardian");
