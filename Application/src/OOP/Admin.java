@@ -68,7 +68,6 @@ public class Admin {
         }
     }
 
-
     //Read Offerings
     public static ArrayList<Offering> getOfferings() {
         ArrayList<Offering> offerings = new ArrayList<>();
@@ -158,7 +157,6 @@ public class Admin {
             return false; // Return false if an SQL exception occurs
         }
     }
-
 
     //Delete Offering
     public static boolean deleteOffering(int offeringId) {

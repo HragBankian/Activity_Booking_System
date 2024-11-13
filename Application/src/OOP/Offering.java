@@ -74,5 +74,4 @@ public class Offering {
     public Integer getInstructorId() { return instructorId; }
     public void setInstructorId(Integer instructorId) { this.instructorId = instructorId; }
     public String getLocation() { return location; };
-    public void setLocation(String location) { this.location = location; }
 }

@@ -54,11 +54,11 @@ public class Guardian extends User {
         return availableOfferings;
     }
 
-    public boolean addMinor(String fullName) {
+    public boolean addMinor(String minorFullName) {
         String query = "INSERT INTO \"Minor\" (full_name, guardian_id) VALUES (?, ?)";
 
         try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setString(1, fullName);
+            pstmt.setString(1, minorFullName);
             pstmt.setInt(2, this.id);
 
             int rowsAffected = pstmt.executeUpdate();
@@ -197,7 +197,6 @@ public class Guardian extends User {
 
         return true;  // Successfully booked the offering for the minor
     }
-
 
     public ArrayList<MinorBooking> getBookingsForMinor(int minorId) {
         ArrayList<MinorBooking> minorBookings = new ArrayList<>();

@@ -86,7 +86,6 @@ public class Instructor extends User {
         }
     }
 
-
     public static boolean cancelLesson(int offeringId) {
         // Query to set instructor_id to NULL for the offering
         String cancelLessonQuery = "UPDATE \"Offering\" SET instructor_id = NULL WHERE id = ?";
@@ -147,9 +146,6 @@ public class Instructor extends User {
         return lessons;
     }
 
-    public String getSpecialty() { return specialty; }
-    public void setSpecialty(String specialty) { this.specialty = specialty; }
-
     private ArrayList<String> getInstructorCities() {
         ArrayList<String> cities = new ArrayList<>();
         String query = "SELECT name FROM \"City\" WHERE instructor_id = ?";
@@ -164,4 +160,7 @@ public class Instructor extends User {
         }
         return cities;
     }
+
+    public String getSpecialty() { return specialty; }
+
 }

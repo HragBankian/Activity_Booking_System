@@ -18,24 +18,6 @@ public class MinorBooking {
         this.minorId = minorId;
     }
 
-    //Check if the offering-minor pair already exists
-    public static boolean minorBookingExists(int offeringId, int minorId) {
-        String query = "SELECT COUNT(*) FROM \"MinorBooking\" WHERE offering_id = ? AND minor_id = ?";
-        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setInt(1, offeringId);
-            pstmt.setInt(2, minorId);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next() && rs.getInt(1) > 0) {
-                    // Booking already exists
-                    return true;
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
     // Getter and Setter methods
     public int getId() {
         return id;
@@ -51,9 +33,6 @@ public class MinorBooking {
     }
     public int getMinorId() {
         return minorId;
-    }
-    public void setMinorId(int minorId) {
-        this.minorId = minorId;
     }
 
 }

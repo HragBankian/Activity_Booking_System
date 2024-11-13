@@ -27,14 +27,8 @@ public class Minor {
     public String getFullName() {
         return fullName;
     }
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
     public int getGuardianId() {
         return guardianId;
-    }
-    public void setGuardianId(int guardianId) {
-        this.guardianId = guardianId;
     }
 }
 
