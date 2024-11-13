@@ -27,7 +27,11 @@ public class ClientManageBooking extends JFrame {
         setLayout(new BorderLayout());
 
         // Initialize components with the new Location column
-        clientBookingsTableModel = new DefaultTableModel(new Object[]{"Booking ID", "Title", "Organization", "City", "Time", "Capacity", "Num Students", "Location"}, 0);
+        clientBookingsTableModel = new DefaultTableModel(new Object[]{"Booking ID", "Title", "Organization", "City", "Time", "Capacity", "Num Students", "Location"}, 0){
+            public boolean isCellEditable(int row, int column) {
+                return false;  // Disable editing for all cells
+            }
+        };
         clientBookingsTable = new JTable(clientBookingsTableModel);
         cancelBookingButton = new JButton("Cancel Booking");
 

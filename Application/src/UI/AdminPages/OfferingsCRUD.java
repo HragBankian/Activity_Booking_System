@@ -28,7 +28,14 @@ public class OfferingsCRUD extends JFrame {
         setLayout(new BorderLayout());
 
         // Initialize components
-        tableModel = new DefaultTableModel(new Object[]{"ID", "Title", "Organization", "City", "Time", "Capacity", "Num Students", "Instructor ID", "Location"}, 0);
+        tableModel = new DefaultTableModel(new Object[]{"ID", "Title", "Organization", "City", "Time", "Capacity", "Num Students", "Instructor ID", "Location"}, 0){
+            public boolean isCellEditable(int row, int column) {
+                if (column == 0 || column == 1 || column == 6 || column == 7){
+                    return false; // Disable editing for all cells
+                }
+                return true;
+            }
+        };
         offeringsTable = new JTable(tableModel);
 
         createButton = new JButton("Create Offering");

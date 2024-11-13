@@ -30,7 +30,11 @@ public class GuardianMakeBooking extends JFrame {
         setLayout(new BorderLayout());
 
         // Initialize components with the new Location column
-        offeringsTableModel = new DefaultTableModel(new Object[]{"ID", "Title", "Organization", "City", "Time", "Capacity", "Num Students", "Location"}, 0);
+        offeringsTableModel = new DefaultTableModel(new Object[]{"ID", "Title", "Organization", "City", "Time", "Capacity", "Num Students", "Location"}, 0){
+            public boolean isCellEditable(int row, int column) {
+                return false;  // Disable editing for all cells
+            }
+        };
         offeringsTable = new JTable(offeringsTableModel);
         bookButton = new JButton("Book Offering");
 

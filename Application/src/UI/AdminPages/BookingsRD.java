@@ -24,7 +24,11 @@ public class BookingsRD extends JFrame {
         setLayout(new GridLayout(3, 1));  // Use GridLayout for better layout control
 
         // Initialize components
-        clientBookingsTableModel = new DefaultTableModel(new Object[]{"ID", "Offering ID", "Client ID"}, 0);
+        clientBookingsTableModel = new DefaultTableModel(new Object[]{"ID", "Offering ID", "Client ID"}, 0){
+            public boolean isCellEditable(int row, int column) {
+                return false;  // Disable editing for all cells
+            }
+        };
         clientBookingsTable = new JTable(clientBookingsTableModel);
 
         minorBookingsTableModel = new DefaultTableModel(new Object[]{"ID", "Offering ID", "Minor ID"}, 0);

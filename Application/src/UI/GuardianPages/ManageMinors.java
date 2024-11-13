@@ -27,7 +27,11 @@ public class ManageMinors extends JFrame {
         setLayout(new BorderLayout());
 
         // Table setup
-        minorsTableModel = new DefaultTableModel(new Object[]{"Id", "Full Name"}, 0);
+        minorsTableModel = new DefaultTableModel(new Object[]{"Id", "Full Name"}, 0){
+            public boolean isCellEditable(int row, int column) {
+                return false;  // Disable editing for all cells
+            }
+        };
         minorsTable = new JTable(minorsTableModel);
         minorsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JScrollPane tableScrollPane = new JScrollPane(minorsTable);
