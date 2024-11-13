@@ -20,8 +20,8 @@ public class GuardiansMinorsRD extends JFrame {
     private JButton deleteMinorButton;
 
     public GuardiansMinorsRD() {
-        setTitle("Guardians and Minors CRUD");
-        setSize(800, 600);
+        setTitle("Guardians/Minors RD");
+        setSize(1000, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new GridLayout(2, 1));  // Use GridLayout to have two tables

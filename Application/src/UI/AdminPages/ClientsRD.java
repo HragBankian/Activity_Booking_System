@@ -16,7 +16,7 @@ public class ClientsRD extends JFrame {
     private JButton deleteButton;
 
     public ClientsRD() {
-        setTitle("Clients CRUD");
+        setTitle("Clients RD");
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);  // Only close this window
         setLocationRelativeTo(null);

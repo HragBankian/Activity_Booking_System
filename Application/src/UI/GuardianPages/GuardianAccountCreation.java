@@ -23,7 +23,7 @@ public class GuardianAccountCreation extends JFrame {
     public GuardianAccountCreation() {
         // Set up the frame
         setTitle("Guardian Account Creation");
-        setSize(400, 400);
+        setSize(700, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 

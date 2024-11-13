@@ -17,7 +17,7 @@ public class BookingsRD extends JFrame {
     private JButton deleteClientBookingButton, deleteMinorBookingButton;
 
     public BookingsRD() {
-        setTitle("Bookings CRUD");
+        setTitle("Bookings RD");
         setSize(800, 500);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);  // Only close this window
         setLocationRelativeTo(null);

@@ -16,7 +16,7 @@ public class InstructorsRD extends JFrame {
     private JButton deleteInstructorButton;
 
     public InstructorsRD() {
-        setTitle("Instructors CRUD");
+        setTitle("Instructors RD");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);

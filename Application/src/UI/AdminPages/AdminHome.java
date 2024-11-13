@@ -15,11 +15,11 @@ public class AdminHome extends JFrame {
         setLayout(new GridLayout(5, 1, 10, 10)); // Set layout with 5 rows, 1 column
 
         // Create buttons for each CRUD operation
-        JButton btnOfferingsCRUD = new JButton("Offerings");
-        JButton btnBookingsCRUD = new JButton("Bookings");
-        JButton btnClientsCRUD = new JButton("Clients");
-        JButton btnGuardiansCRUD = new JButton("Guardians/Minors");
-        JButton btnInstructorsCRUD = new JButton("Instructors");
+        JButton btnOfferingsCRUD = new JButton("Offerings CRUD");
+        JButton btnBookingsCRUD = new JButton("Bookings RD");
+        JButton btnClientsCRUD = new JButton("Clients RD");
+        JButton btnGuardiansCRUD = new JButton("Guardians/Minors RD");
+        JButton btnInstructorsCRUD = new JButton("Instructors RD");
 
         // Add action listeners for buttons
         btnOfferingsCRUD.addActionListener(new ActionListener() {
