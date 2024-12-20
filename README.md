@@ -1,10 +1,6 @@
 # Activity Booking System
 
-**Project Description**
-
-Software system to support an organization offering group or private lessons (of various types, such as yoga, swimming, etc.) to clients.
-
-**Running the Project**
+## Running the Project
 
 1. To ensure connection to the database, download PostgreSQL JDBC Driver: https://jdbc.postgresql.org/
    
