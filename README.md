@@ -1,12 +1,4 @@
-# SOEN342_Project
-
-**Student Information**
-
-Section H - Team #3
-
-Hrag Bankian - 40245363 - hrag.bankian@gmail.com
-
-Gregory Demirdjian - 40249882 - gregoryd2003@gmail.com
+# Activity Booking System
 
 **Project Description**
 
